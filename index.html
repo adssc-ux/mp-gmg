@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horímetro Digital - Multigeradores</title>
-    <!-- jsPDF + AutoTable -->
+    <title>Horímetro Digital - EQS INFRA</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js">
@@ -62,6 +61,51 @@
             position: relative;
         }
 
+        /* ========== LOGO EQS INFRA NO CANTO SUPERIOR ESQUERDO ========== */
+        .brand-logo {
+            position: fixed;
+            top: 20px;
+            left: 28px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .brand-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(0, 180, 255, 0.5), 0 0 40px rgba(0, 114, 255, 0.3);
+            letter-spacing: 0.5px;
+        }
+        .brand-logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .brand-logo-main {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 30px rgba(0, 180, 255, 0.6);
+        }
+        .brand-logo-sub {
+            font-size: 0.6rem;
+            color: #aabbdd;
+            letter-spacing: 2px;
+            font-weight: 500;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+        }
+
         #particlesCanvas {
             position: fixed;
             top: 0;
@@ -88,6 +132,7 @@
             -webkit-backdrop-filter: blur(var(--backdrop-blur));
             border: 1px solid var(--border);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-top: 50px;
         }
 
         /* ========== SIDEBAR ========== */
@@ -471,6 +516,30 @@
         .btn-simular:hover {
             background: rgba(243, 156, 18, 0.3);
             border-color: var(--orange);
+        }
+
+        /* Input de horas personalizadas */
+        .custom-hours-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .custom-hours-input {
+            width: 65px;
+            padding: 7px 8px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            text-align: center;
+            outline: none;
+            backdrop-filter: blur(4px);
+        }
+        .custom-hours-input:focus {
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.15);
         }
 
         /* ========== MANUTENÇÃO ========== */
@@ -864,8 +933,24 @@
         }
 
         @media (max-width: 750px) {
+            .brand-logo {
+                top: 10px;
+                left: 12px;
+            }
+            .brand-logo-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.75rem;
+            }
+            .brand-logo-main {
+                font-size: 0.95rem;
+            }
+            .brand-logo-sub {
+                font-size: 0.5rem;
+            }
             .main-container {
                 flex-direction: column;
+                margin-top: 40px;
             }
             .sidebar {
                 width: 100%;
@@ -899,10 +984,22 @@
             .horimetro-display .digit-group {
                 font-size: 1.9rem;
             }
+            .custom-hours-group {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- LOGO EQS INFRA NO CANTO SUPERIOR ESQUERDO -->
+    <div class="brand-logo">
+        <div class="brand-logo-icon">EQS</div>
+        <div class="brand-logo-text">
+            <span class="brand-logo-main">EQS INFRA</span>
+            <span class="brand-logo-sub">SOLUÇÕES EM INFRAESTRUTURA</span>
+        </div>
+    </div>
 
     <canvas id="particlesCanvas"></canvas>
 
@@ -963,7 +1060,10 @@
                     <button class="btn btn-start" id="btnStart">▶ Iniciar</button>
                     <button class="btn btn-stop" id="btnStop" style="display:none;">⏹ Parar</button>
                     <button class="btn btn-reset" id="btnReset">↺ Zerar</button>
-                    <button class="btn btn-simular" id="btnSimular">⏩ +10h</button>
+                    <div class="custom-hours-group">
+                        <input type="number" class="custom-hours-input" id="customHoursInput" value="10" min="0.1" max="99999" step="0.1" placeholder="Horas">
+                        <button class="btn btn-simular" id="btnSimular">⏩ Adicionar</button>
+                    </div>
                 </div>
             </section>
 
@@ -1072,7 +1172,7 @@
             animateParticles();
 
             // ========== CONSTANTES ==========
-            const STORAGE_KEY = 'horimetro_multigerador_v2';
+            const STORAGE_KEY = 'horimetro_multigerador_v3';
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Óleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
                     alerted: false },
@@ -1104,6 +1204,7 @@
             const $btnStop = document.getElementById('btnStop');
             const $btnReset = document.getElementById('btnReset');
             const $btnSimular = document.getElementById('btnSimular');
+            const $customHoursInput = document.getElementById('customHoursInput');
             const $maintenanceGrid = document.getElementById('maintenanceGrid');
             const $historyContent = document.getElementById('historyContent');
             const $btnClearHistory = document.getElementById('btnClearHistory');
@@ -1434,10 +1535,21 @@
                 showToast(`Horímetro zerado: ${gen.name}`, 'success');
             }
 
-            function simulateHours(h) {
+            function simulateHours() {
                 const gen = getActiveGenerator();
                 if (!gen) return;
-                const ms = h * 3600000;
+                const rawValue = $customHoursInput.value.trim();
+                const hours = parseFloat(rawValue);
+                if (isNaN(hours) || hours <= 0) {
+                    showToast('Informe um valor válido de horas (ex: 5.5 ou 10).', 'warning');
+                    return;
+                }
+                if (hours > 99999) {
+                    showToast('Valor máximo permitido: 99999 horas.', 'warning');
+                    return;
+                }
+                if (!confirm(`Adicionar ${hours} hora(s) ao horímetro de "${gen.name}"?`)) return;
+                const ms = hours * 3600000;
                 if (gen.isRunning) {
                     gen.totalMilliseconds += Math.max(0, Date.now() - gen.startTimestamp) + ms;
                     gen.startTimestamp = Date.now();
@@ -1448,7 +1560,8 @@
                 saveState();
                 updateAllUI();
                 checkAlerts();
-                showToast(`${h} horas adicionadas: ${gen.name}`, 'success');
+                showToast(`${hours} hora(s) adicionada(s): ${gen.name}`, 'success');
+                $customHoursInput.value = hours;
             }
 
             function recordMaintenance(itemId) {
@@ -1615,7 +1728,6 @@
                 const formatted = formatTime(getCurrentTotalMs());
                 const now = new Date();
 
-                // Título
                 doc.setFontSize(18);
                 doc.text('Relatório de Horímetro', 14, 22);
                 doc.setFontSize(11);
@@ -1625,7 +1737,6 @@
                 doc.text(`Horas Totais: ${formatted.hoursStr}:${formatted.minutesStr}:${formatted.secondsStr}`, 14, 53);
                 doc.text(`Status: ${gen.isRunning ? 'Em funcionamento' : 'Parado'}`, 14, 60);
 
-                // Tabela de manutenções
                 const maintenanceRows = gen.maintenanceItems.map(item => {
                     const st = getMaintenanceStatus(item, totalHours);
                     let status = 'OK';
@@ -1649,7 +1760,6 @@
                     headStyles: { fillColor: [41, 128, 185] },
                 });
 
-                // Histórico
                 if (gen.maintenanceHistory.length > 0) {
                     const historyY = doc.lastAutoTable.finalY + 10;
                     doc.setFontSize(14);
@@ -1729,7 +1839,14 @@
             $btnStop.addEventListener('click', stopTimer);
             $btnReset.addEventListener('click', () => { if (confirm(
                     'Zerar horímetro e manutenções deste gerador?')) resetTimer(); });
-            $btnSimular.addEventListener('click', () => { if (confirm('Adicionar 10 horas?')) simulateHours(10); });
+            $btnSimular.addEventListener('click', simulateHours);
+            // Permite pressionar Enter no campo de horas para adicionar
+            $customHoursInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    simulateHours();
+                }
+            });
             $btnClearHistory.addEventListener('click', () => {
                 const gen = getActiveGenerator();
                 if (gen && confirm('Limpar histórico deste gerador?')) {
