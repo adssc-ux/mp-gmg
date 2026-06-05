@@ -61,7 +61,6 @@
             position: relative;
         }
 
-        /* ========== LOGO EQS INFRA NO CANTO SUPERIOR ESQUERDO ========== */
         .brand-logo {
             position: fixed;
             top: 20px;
@@ -210,6 +209,11 @@
             color: #aaa;
             margin-top: 6px;
             text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .tech-info span {
             display: flex;
             align-items: center;
             gap: 4px;
@@ -518,7 +522,6 @@
             border-color: var(--orange);
         }
 
-        /* Input de horas personalizadas */
         .custom-hours-group {
             display: flex;
             align-items: center;
@@ -784,7 +787,7 @@
             border-radius: var(--radius);
             padding: 24px;
             width: 90%;
-            max-width: 500px;
+            max-width: 520px;
             max-height: 80vh;
             overflow-y: auto;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
@@ -992,7 +995,6 @@
 </head>
 <body>
 
-    <!-- LOGO EQS INFRA NO CANTO SUPERIOR ESQUERDO -->
     <div class="brand-logo">
         <div class="brand-logo-icon">EQS</div>
         <div class="brand-logo-text">
@@ -1004,11 +1006,12 @@
     <canvas id="particlesCanvas"></canvas>
 
     <div class="main-container">
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-section">
                 <div class="sidebar-label">Técnico</div>
-                <div class="tech-info" id="techInfo">👤 Não definido</div>
+                <div class="tech-info" id="techInfo">
+                    <span>👤 Não definido</span>
+                </div>
             </div>
             <div class="sidebar-section">
                 <div class="sidebar-label">Gerador Ativo</div>
@@ -1085,7 +1088,6 @@
 
     <script>
         (function() {
-            // ========== PARTÍCULAS ==========
             const canvas = document.getElementById('particlesCanvas');
             const ctx = canvas.getContext('2d');
             let particles = [];
@@ -1171,8 +1173,7 @@
             initParticles();
             animateParticles();
 
-            // ========== CONSTANTES ==========
-            const STORAGE_KEY = 'horimetro_multigerador_v3';
+            const STORAGE_KEY = 'horimetro_multigerador_v4';
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Óleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
                     alerted: false },
@@ -1186,14 +1187,13 @@
                     alerted: false },
             ];
 
-            // ========== ESTADO GLOBAL ==========
             let state = {
                 technicianName: '',
+                technicianCPF: '',
                 generators: [],
                 activeGeneratorId: null,
             };
 
-            // ========== REFERÊNCIAS DOM ==========
             const $hoursDisplay = document.getElementById('hoursDisplay');
             const $minutesDisplay = document.getElementById('minutesDisplay');
             const $secondsDisplay = document.getElementById('secondsDisplay');
@@ -1223,7 +1223,6 @@
             let displayIntervalId = null;
             let maintUpdateIntervalId = null;
 
-            // ========== PERSISTÊNCIA ==========
             function saveState() {
                 try {
                     if (state.activeGeneratorId) {
@@ -1242,6 +1241,7 @@
                     const raw = localStorage.getItem(STORAGE_KEY);
                     if (!raw) {
                         state.technicianName = '';
+                        state.technicianCPF = '';
                         state.generators = [{
                             id: 'gen_' + Date.now(),
                             name: 'Gerador Principal',
@@ -1257,6 +1257,7 @@
                     }
                     const parsed = JSON.parse(raw);
                     state.technicianName = parsed.technicianName || '';
+                    state.technicianCPF = parsed.technicianCPF || '';
                     state.generators = parsed.generators || [];
                     state.activeGeneratorId = parsed.activeGeneratorId || (state.generators[0] ? state.generators[0]
                         .id : null);
@@ -1282,6 +1283,7 @@
                     saveState();
                 } catch (e) {
                     state.technicianName = '';
+                    state.technicianCPF = '';
                     state.generators = [{
                         id: 'gen_' + Date.now(),
                         name: 'Gerador Principal',
@@ -1296,7 +1298,6 @@
                 }
             }
 
-            // ========== GERADOR ATIVO ==========
             function getActiveGenerator() {
                 return state.generators.find(g => g.id === state.activeGeneratorId) || null;
             }
@@ -1335,10 +1336,17 @@
                 }
                 const activeGen = getActiveGenerator();
                 $currentGenBadge.textContent = activeGen ? `🔌 ${activeGen.name}` : '🔌 Nenhum gerador';
-                $techInfo.textContent = state.technicianName ? `👤 ${state.technicianName}` : '👤 Não definido';
+
+                // Atualiza info do técnico na sidebar
+                const techName = state.technicianName || 'Não definido';
+                const techCPF = state.technicianCPF ? `CPF: ${state.technicianCPF}` : '';
+                if (techCPF) {
+                    $techInfo.innerHTML = `<span>👤 ${techName}</span><span style="font-size:0.65rem;">🪪 ${techCPF}</span>`;
+                } else {
+                    $techInfo.innerHTML = `<span>👤 ${techName}</span>`;
+                }
             }
 
-            // ========== TIMER ==========
             function getCurrentTotalMs() {
                 const gen = getActiveGenerator();
                 if (!gen) return 0;
@@ -1469,7 +1477,6 @@
                 updateGeneratorSelect();
             }
 
-            // ========== ABAS ==========
             function switchTab(id) {
                 $tabBtns.forEach(b => b.classList.remove('active'));
                 $tabContents.forEach(c => c.classList.remove('active'));
@@ -1478,7 +1485,6 @@
             }
             $tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
-            // ========== CONTROLE DE TIMER ==========
             function startDisplayInterval() {
                 if (displayIntervalId) return;
                 displayIntervalId = setInterval(updateDisplay, 1000);
@@ -1576,6 +1582,7 @@
                     itemName: item.name,
                     hoursAtMaintenance: totalHours,
                     technicianName: state.technicianName || 'Técnico',
+                    technicianCPF: state.technicianCPF || '',
                     generatorName: gen.name,
                 });
                 item.lastDoneAtHours = totalHours;
@@ -1619,14 +1626,17 @@
             function closeModal() { $modalOverlay.style.display = 'none';
                 $modalOverlay.innerHTML = ''; }
 
-            // ========== GERENCIAMENTO ==========
             function openManageModal() {
                 let html = `
                     <div class="modal">
                         <h2>Gerenciar Técnico e Geradores</h2>
                         <div class="form-group">
                             <label>Nome do Técnico Responsável</label>
-                            <input type="text" id="inputTechName" value="${escapeHtml(state.technicianName)}" placeholder="Nome do técnico">
+                            <input type="text" id="inputTechName" value="${escapeHtml(state.technicianName)}" placeholder="Nome completo">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF do Técnico</label>
+                            <input type="text" id="inputTechCPF" value="${escapeHtml(state.technicianCPF)}" placeholder="000.000.000-00">
                         </div>
                         <div class="form-group">
                             <label>Geradores Cadastrados</label>
@@ -1675,7 +1685,13 @@
                     state.technicianName = this.value.trim();
                     saveState();
                     updateGeneratorSelect();
-                    showToast('Técnico atualizado.', 'success');
+                    showToast('Nome do técnico atualizado.', 'success');
+                });
+                document.getElementById('inputTechCPF').addEventListener('change', function() {
+                    state.technicianCPF = this.value.trim();
+                    saveState();
+                    updateGeneratorSelect();
+                    showToast('CPF do técnico atualizado.', 'success');
                 });
                 $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
 
@@ -1715,7 +1731,6 @@
                 return div.innerHTML;
             }
 
-            // ========== GERAÇÃO DE PDF ==========
             function generatePDF() {
                 const gen = getActiveGenerator();
                 if (!gen) {
@@ -1733,9 +1748,12 @@
                 doc.setFontSize(11);
                 doc.text(`Gerador: ${gen.name}`, 14, 32);
                 doc.text(`Técnico Responsável: ${state.technicianName || 'Não definido'}`, 14, 39);
-                doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 46);
-                doc.text(`Horas Totais: ${formatted.hoursStr}:${formatted.minutesStr}:${formatted.secondsStr}`, 14, 53);
-                doc.text(`Status: ${gen.isRunning ? 'Em funcionamento' : 'Parado'}`, 14, 60);
+                if (state.technicianCPF) {
+                    doc.text(`CPF do Técnico: ${state.technicianCPF}`, 14, 46);
+                }
+                doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 53);
+                doc.text(`Horas Totais: ${formatted.hoursStr}:${formatted.minutesStr}:${formatted.secondsStr}`, 14, 60);
+                doc.text(`Status: ${gen.isRunning ? 'Em funcionamento' : 'Parado'}`, 14, 67);
 
                 const maintenanceRows = gen.maintenanceItems.map(item => {
                     const st = getMaintenanceStatus(item, totalHours);
@@ -1750,8 +1768,9 @@
                     ];
                 });
 
+                let startY = state.technicianCPF ? 74 : 67;
                 doc.autoTable({
-                    startY: 68,
+                    startY: startY,
                     head: [
                         ['Manutenção', 'Intervalo', 'Desde Última', 'Status']
                     ],
@@ -1789,7 +1808,6 @@
                 showToast('Relatório PDF gerado com sucesso!', 'success');
             }
 
-            // ========== ALERTAS ==========
             function checkAlerts() {
                 const gen = getActiveGenerator();
                 if (!gen) return;
@@ -1810,7 +1828,6 @@
                 });
             }
 
-            // ========== TOAST / SOM ==========
             function showToast(msg, type) {
                 const t = document.createElement('div');
                 t.className = `toast ${type}`;
@@ -1834,13 +1851,11 @@
                 } catch (e) {}
             }
 
-            // ========== EVENTOS ==========
             $btnStart.addEventListener('click', startTimer);
             $btnStop.addEventListener('click', stopTimer);
             $btnReset.addEventListener('click', () => { if (confirm(
                     'Zerar horímetro e manutenções deste gerador?')) resetTimer(); });
             $btnSimular.addEventListener('click', simulateHours);
-            // Permite pressionar Enter no campo de horas para adicionar
             $customHoursInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -1867,7 +1882,6 @@
                     getActiveGenerator()?.isRunning ? stopTimer() : startTimer(); }
             });
 
-            // ========== INIT ==========
             function init() {
                 loadState();
                 const gen = getActiveGenerator();
