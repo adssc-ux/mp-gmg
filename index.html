@@ -1196,7 +1196,7 @@
             initParticles();
             animateParticles();
 
-            const STORAGE_KEY = 'horimetro_multigerador_v5';
+            const STORAGE_KEY = 'horimetro_multigerador_v7';
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Óleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
                     alerted: false },
@@ -1784,8 +1784,9 @@
                 const formatted = formatTime(getCurrentTotalMs());
                 const now = new Date();
 
+                // Título alterado para RELATÓRIO DE MANUTENÇÃO
                 doc.setFontSize(18);
-                doc.text('Relatório de Horímetro', 14, 22);
+                doc.text('RELATÓRIO DE MANUTENÇÃO', 14, 22);
                 doc.setFontSize(11);
                 doc.text(`Gerador: ${gen.name}`, 14, 32);
                 doc.text(`Técnico Responsável: ${state.technicianName || 'Não definido'}`, 14, 39);
@@ -1845,7 +1846,7 @@
                     });
                 }
 
-                doc.save(`relatorio_${gen.name.replace(/\s+/g, '_')}.pdf`);
+                doc.save(`relatorio_manutencao_${gen.name.replace(/\s+/g, '_')}.pdf`);
                 showToast('Relatório PDF gerado com sucesso!', 'success');
             }
 
@@ -1892,7 +1893,6 @@
                 } catch (e) {}
             }
 
-            // Atualiza o step do input quando mudar a unidade
             $customTimeUnit.addEventListener('change', function() {
                 if (this.value === 'minutos') {
                     $customTimeValue.setAttribute('step', '1');
