@@ -28,7 +28,7 @@
             --sidebar-bg: rgba(12, 12, 20, 0.1);
             --sidebar-active: rgba(30, 30, 50, 0.2);
             --sidebar-hover: rgba(25, 25, 40, 0.15);
-            --sidebar-width: 220px;
+            --sidebar-width: 230px;
             --radius: 14px;
             --radius-sm: 10px;
             --transition: 0.25s ease;
@@ -320,15 +320,24 @@
         }
         .current-generator-badge {
             display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
+            flex-direction: column;
+            gap: 2px;
+            padding: 6px 12px;
             border-radius: 16px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--border);
             font-size: 0.75rem;
             color: #ddd;
             text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+            line-height: 1.2;
+        }
+        .current-generator-badge .gen-name {
+            font-weight: 600;
+            color: #fff;
+        }
+        .current-generator-badge .gen-chassi {
+            font-size: 0.65rem;
+            color: #aaa;
         }
         .status-badge {
             display: flex;
@@ -806,7 +815,7 @@
             border-radius: var(--radius);
             padding: 24px;
             width: 90%;
-            max-width: 520px;
+            max-width: 560px;
             max-height: 80vh;
             overflow-y: auto;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
@@ -1059,7 +1068,10 @@
                     <h2>Painel de Controle</h2>
                     <span class="header-subtitle">Monitoramento em tempo real</span>
                 </div>
-                <div class="current-generator-badge" id="currentGenBadge">🔌 Nenhum gerador</div>
+                <div class="current-generator-badge" id="currentGenBadge">
+                    <span class="gen-name">🔌 Nenhum gerador</span>
+                    <span class="gen-chassi" id="genChassiDisplay"></span>
+                </div>
                 <div class="status-badge stopped" id="statusBadge">
                     <span class="status-led" id="statusLed"></span>
                     <span id="statusText">Parado</span>
@@ -1196,7 +1208,8 @@
             initParticles();
             animateParticles();
 
-            const STORAGE_KEY = 'horimetro_multigerador_v7';
+            // NOVA VERSÃO DO STORAGE COM CAMPO CHASSI
+            const STORAGE_KEY = 'horimetro_multigerador_v8';
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Óleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
                     alerted: false },
@@ -1243,10 +1256,12 @@
             const $btnPDF = document.getElementById('btnPDF');
             const $techInfo = document.getElementById('techInfo');
             const $currentGenBadge = document.getElementById('currentGenBadge');
+            const $genChassiDisplay = document.getElementById('genChassiDisplay');
 
             let displayIntervalId = null;
             let maintUpdateIntervalId = null;
 
+            // ========== PERSISTÊNCIA COM MIGRAÇÃO AUTOMÁTICA ==========
             function saveState() {
                 try {
                     if (state.activeGeneratorId) {
@@ -1264,11 +1279,13 @@
                 try {
                     const raw = localStorage.getItem(STORAGE_KEY);
                     if (!raw) {
+                        // Primeiro acesso: cria um gerador padrão com chassi vazio
                         state.technicianName = '';
                         state.technicianCPF = '';
                         state.generators = [{
                             id: 'gen_' + Date.now(),
                             name: 'Gerador Principal',
+                            chassi: '',
                             totalMilliseconds: 0,
                             isRunning: false,
                             startTimestamp: null,
@@ -1285,32 +1302,39 @@
                     state.generators = parsed.generators || [];
                     state.activeGeneratorId = parsed.activeGeneratorId || (state.generators[0] ? state.generators[0]
                         .id : null);
-                    state.generators.forEach(gen => {
-                        if (!gen.maintenanceItems || gen.maintenanceItems.length === 0) {
-                            gen.maintenanceItems = JSON.parse(JSON.stringify(
-                                DEFAULT_MAINTENANCE_ITEMS));
-                        } else {
-                            gen.maintenanceItems = DEFAULT_MAINTENANCE_ITEMS.map(def => {
-                                const saved = gen.maintenanceItems.find(s => s.id === def
-                                    .id);
-                                return saved ? { ...def, ...saved, alerted: false } : { ...def };
-                            });
-                        }
-                        if (!gen.maintenanceHistory) gen.maintenanceHistory = [];
-                        if (typeof gen.totalMilliseconds !== 'number') gen.totalMilliseconds = 0;
-                        if (typeof gen.isRunning !== 'boolean') gen.isRunning = false;
-                        if (!gen.startTimestamp) gen.startTimestamp = null;
+
+                    // GARANTIR QUE TODOS OS GERADORES TENHAM O CAMPO CHASSI E OUTROS CAMPOS NOVOS
+                    state.generators = state.generators.map(gen => {
+                        // Campos obrigatórios padrão se não existirem (migração)
+                        const defaultGen = {
+                            id: gen.id || 'gen_' + Date.now(),
+                            name: gen.name || 'Gerador',
+                            chassi: gen.chassi || '', // Novo campo
+                            totalMilliseconds: typeof gen.totalMilliseconds === 'number' ? gen.totalMilliseconds : 0,
+                            isRunning: typeof gen.isRunning === 'boolean' ? gen.isRunning : false,
+                            startTimestamp: gen.startTimestamp || null,
+                            maintenanceItems: Array.isArray(gen.maintenanceItems) && gen.maintenanceItems.length > 0 ?
+                                DEFAULT_MAINTENANCE_ITEMS.map(def => {
+                                    const saved = gen.maintenanceItems.find(s => s.id === def.id);
+                                    return saved ? { ...def, ...saved, alerted: false } : { ...def };
+                                }) : JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
+                            maintenanceHistory: Array.isArray(gen.maintenanceHistory) ? gen.maintenanceHistory : [],
+                        };
+                        return defaultGen;
                     });
+
                     if (!state.activeGeneratorId && state.generators.length > 0) {
                         state.activeGeneratorId = state.generators[0].id;
                     }
                     saveState();
                 } catch (e) {
+                    // Em caso de erro, recria estado inicial
                     state.technicianName = '';
                     state.technicianCPF = '';
                     state.generators = [{
                         id: 'gen_' + Date.now(),
                         name: 'Gerador Principal',
+                        chassi: '',
                         totalMilliseconds: 0,
                         isRunning: false,
                         startTimestamp: null,
@@ -1359,7 +1383,13 @@
                     $generatorSelect.innerHTML = '<option value="">Nenhum gerador</option>';
                 }
                 const activeGen = getActiveGenerator();
-                $currentGenBadge.textContent = activeGen ? `🔌 ${activeGen.name}` : '🔌 Nenhum gerador';
+                if (activeGen) {
+                    document.querySelector('#currentGenBadge .gen-name').textContent = `🔌 ${activeGen.name}`;
+                    $genChassiDisplay.textContent = activeGen.chassi ? `Chassi: ${activeGen.chassi}` : '';
+                } else {
+                    document.querySelector('#currentGenBadge .gen-name').textContent = '🔌 Nenhum gerador';
+                    $genChassiDisplay.textContent = '';
+                }
 
                 const techName = state.technicianName || 'Não definido';
                 const techCPF = state.technicianCPF ? `CPF: ${state.technicianCPF}` : '';
@@ -1369,6 +1399,8 @@
                     $techInfo.innerHTML = `<span>👤 ${techName}</span>`;
                 }
             }
+
+            // ... (funções de tempo, UI, etc., permanecem as mesmas, com pequenas adaptações para exibir chassi no PDF e nos modais)
 
             function getCurrentTotalMs() {
                 const gen = getActiveGenerator();
@@ -1625,6 +1657,7 @@
                     technicianName: state.technicianName || 'Técnico',
                     technicianCPF: state.technicianCPF || '',
                     generatorName: gen.name,
+                    generatorChassi: gen.chassi || '',
                 });
                 item.lastDoneAtHours = totalHours;
                 item.alerted = false;
@@ -1667,6 +1700,7 @@
             function closeModal() { $modalOverlay.style.display = 'none';
                 $modalOverlay.innerHTML = ''; }
 
+            // ========== MODAL DE GERENCIAMENTO COM CHASSI ==========
             function openManageModal() {
                 let html = `
                     <div class="modal">
@@ -1685,16 +1719,18 @@
                 state.generators.forEach(gen => {
                     html += `
                         <div class="gen-item">
-                            <span>${escapeHtml(gen.name)}</span>
-                            <button onclick="window._editGenName('${gen.id}')">✏️</button>
+                            <span>${escapeHtml(gen.name)}${gen.chassi ? ` <small style="color:#aaa;">(Chassi: ${escapeHtml(gen.chassi)})</small>` : ''}</span>
+                            <button onclick="window._editGen('${gen.id}')">✏️</button>
                             <button onclick="window._removeGen('${gen.id}')">🗑</button>
                         </div>`;
                 });
                 html += `</div>
                         </div>
-                        <div class="form-group">
-                            <input type="text" id="inputNewGenName" placeholder="Nome do novo gerador">
-                            <button class="btn-confirm" id="btnAddGen" style="margin-top:6px;">➕ Adicionar Gerador</button>
+                        <div class="form-group" id="addGenForm">
+                            <label>Adicionar Novo Gerador</label>
+                            <input type="text" id="inputNewGenName" placeholder="Nome do gerador">
+                            <input type="text" id="inputNewGenChassi" placeholder="Chassi (opcional)" style="margin-top:6px;">
+                            <button class="btn-confirm" id="btnAddGen" style="margin-top:8px;">➕ Adicionar Gerador</button>
                         </div>
                         <div class="modal-buttons">
                             <button class="btn-cancel" id="modalCancel">Fechar</button>
@@ -1705,10 +1741,12 @@
                 document.getElementById('modalCancel').onclick = closeModal;
                 document.getElementById('btnAddGen').onclick = () => {
                     const name = document.getElementById('inputNewGenName').value.trim();
+                    const chassi = document.getElementById('inputNewGenChassi').value.trim();
                     if (!name) { showToast('Informe o nome do gerador.', 'warning'); return; }
                     const newGen = {
                         id: 'gen_' + Date.now(),
                         name: name,
+                        chassi: chassi,
                         totalMilliseconds: 0,
                         isRunning: false,
                         startTimestamp: null,
@@ -1736,16 +1774,23 @@
                 });
                 $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
 
-                window._editGenName = function(genId) {
+                // Funções globais para editar/remover (agora edita nome e chassi)
+                window._editGen = function(genId) {
                     const gen = state.generators.find(g => g.id === genId);
                     if (!gen) return;
                     const newName = prompt('Novo nome do gerador:', gen.name);
-                    if (newName && newName.trim()) {
+                    if (newName !== null && newName.trim() === '') {
+                        showToast('Nome não pode ficar vazio.', 'warning');
+                        return;
+                    }
+                    const newChassi = prompt('Novo chassi do gerador (opcional):', gen.chassi || '');
+                    if (newName !== null) {
                         gen.name = newName.trim();
+                        if (newChassi !== null) gen.chassi = newChassi.trim();
                         saveState();
                         updateAllUI();
                         openManageModal();
-                        showToast('Nome atualizado.', 'success');
+                        showToast('Gerador atualizado.', 'success');
                     }
                 };
                 window._removeGen = function(genId) {
@@ -1772,6 +1817,7 @@
                 return div.innerHTML;
             }
 
+            // ========== GERAÇÃO DE PDF COM CHASSI ==========
             function generatePDF() {
                 const gen = getActiveGenerator();
                 if (!gen) {
@@ -1784,18 +1830,20 @@
                 const formatted = formatTime(getCurrentTotalMs());
                 const now = new Date();
 
-                // Título alterado para RELATÓRIO DE MANUTENÇÃO
                 doc.setFontSize(18);
                 doc.text('RELATÓRIO DE MANUTENÇÃO', 14, 22);
                 doc.setFontSize(11);
                 doc.text(`Gerador: ${gen.name}`, 14, 32);
-                doc.text(`Técnico Responsável: ${state.technicianName || 'Não definido'}`, 14, 39);
-                if (state.technicianCPF) {
-                    doc.text(`CPF do Técnico: ${state.technicianCPF}`, 14, 46);
+                if (gen.chassi) {
+                    doc.text(`Chassi: ${gen.chassi}`, 14, 39);
                 }
-                doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 53);
-                doc.text(`Horas Totais: ${formatted.hoursStr}:${formatted.minutesStr}:${formatted.secondsStr}`, 14, 60);
-                doc.text(`Status: ${gen.isRunning ? 'Em funcionamento' : 'Parado'}`, 14, 67);
+                doc.text(`Técnico Responsável: ${state.technicianName || 'Não definido'}`, 14, 46);
+                if (state.technicianCPF) {
+                    doc.text(`CPF do Técnico: ${state.technicianCPF}`, 14, 53);
+                }
+                doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 60);
+                doc.text(`Horas Totais: ${formatted.hoursStr}:${formatted.minutesStr}:${formatted.secondsStr}`, 14, 67);
+                doc.text(`Status: ${gen.isRunning ? 'Em funcionamento' : 'Parado'}`, 14, 74);
 
                 const maintenanceRows = gen.maintenanceItems.map(item => {
                     const st = getMaintenanceStatus(item, totalHours);
@@ -1810,12 +1858,14 @@
                     ];
                 });
 
-                let startY = state.technicianCPF ? 74 : 67;
+                let startY = 82;
+                if (gen.chassi && state.technicianCPF) startY = 82;
+                else if (gen.chassi || state.technicianCPF) startY = 75;
+                else startY = 68;
+
                 doc.autoTable({
                     startY: startY,
-                    head: [
-                        ['Manutenção', 'Intervalo', 'Desde Última', 'Status']
-                    ],
+                    head: [['Manutenção', 'Intervalo', 'Desde Última', 'Status']],
                     body: maintenanceRows,
                     theme: 'grid',
                     headStyles: { fillColor: [41, 128, 185] },
@@ -1837,9 +1887,7 @@
                     });
                     doc.autoTable({
                         startY: historyY + 5,
-                        head: [
-                            ['Data', 'Manutenção', 'Horas no momento', 'Técnico']
-                        ],
+                        head: [['Data', 'Manutenção', 'Horas no momento', 'Técnico']],
                         body: historyRows,
                         theme: 'grid',
                         headStyles: { fillColor: [39, 174, 96] },
