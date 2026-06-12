@@ -1208,8 +1208,10 @@
             initParticles();
             animateParticles();
 
-            // NOVA VERSÃO DO STORAGE COM CAMPO CHASSI
+            // ========== CONFIGURAÇÃO DE ARMAZENAMENTO ==========
             const STORAGE_KEY = 'horimetro_multigerador_v8';
+            const OLD_STORAGE_KEY = 'horimetro_multigerador_v7'; // Chave da versão anterior
+
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Óleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
                     alerted: false },
@@ -1261,7 +1263,7 @@
             let displayIntervalId = null;
             let maintUpdateIntervalId = null;
 
-            // ========== PERSISTÊNCIA COM MIGRAÇÃO AUTOMÁTICA ==========
+            // ========== PERSISTÊNCIA COM MIGRAÇÃO ==========
             function saveState() {
                 try {
                     if (state.activeGeneratorId) {
@@ -1272,14 +1274,24 @@
                         }
                     }
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                    // Remove chave antiga após migração bem sucedida
+                    localStorage.removeItem(OLD_STORAGE_KEY);
                 } catch (e) {}
             }
 
             function loadState() {
                 try {
-                    const raw = localStorage.getItem(STORAGE_KEY);
+                    // Tentar carregar da nova chave primeiro
+                    let raw = localStorage.getItem(STORAGE_KEY);
+                    // Se não existir, tentar carregar da chave antiga (v7)
                     if (!raw) {
-                        // Primeiro acesso: cria um gerador padrão com chassi vazio
+                        raw = localStorage.getItem(OLD_STORAGE_KEY);
+                        if (raw) {
+                            console.log('Migrando dados da versão anterior...');
+                        }
+                    }
+                    if (!raw) {
+                        // Nenhum dado encontrado, estado inicial
                         state.technicianName = '';
                         state.technicianCPF = '';
                         state.generators = [{
@@ -1300,16 +1312,14 @@
                     state.technicianName = parsed.technicianName || '';
                     state.technicianCPF = parsed.technicianCPF || '';
                     state.generators = parsed.generators || [];
-                    state.activeGeneratorId = parsed.activeGeneratorId || (state.generators[0] ? state.generators[0]
-                        .id : null);
+                    state.activeGeneratorId = parsed.activeGeneratorId || (state.generators[0] ? state.generators[0].id : null);
 
-                    // GARANTIR QUE TODOS OS GERADORES TENHAM O CAMPO CHASSI E OUTROS CAMPOS NOVOS
+                    // Migração de cada gerador para garantir campos novos (chassi)
                     state.generators = state.generators.map(gen => {
-                        // Campos obrigatórios padrão se não existirem (migração)
-                        const defaultGen = {
+                        return {
                             id: gen.id || 'gen_' + Date.now(),
                             name: gen.name || 'Gerador',
-                            chassi: gen.chassi || '', // Novo campo
+                            chassi: gen.chassi || '',
                             totalMilliseconds: typeof gen.totalMilliseconds === 'number' ? gen.totalMilliseconds : 0,
                             isRunning: typeof gen.isRunning === 'boolean' ? gen.isRunning : false,
                             startTimestamp: gen.startTimestamp || null,
@@ -1320,15 +1330,14 @@
                                 }) : JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                             maintenanceHistory: Array.isArray(gen.maintenanceHistory) ? gen.maintenanceHistory : [],
                         };
-                        return defaultGen;
                     });
 
                     if (!state.activeGeneratorId && state.generators.length > 0) {
                         state.activeGeneratorId = state.generators[0].id;
                     }
-                    saveState();
+                    saveState(); // Salva na nova chave e remove a antiga
                 } catch (e) {
-                    // Em caso de erro, recria estado inicial
+                    console.error('Erro ao carregar estado, recriando...', e);
                     state.technicianName = '';
                     state.technicianCPF = '';
                     state.generators = [{
@@ -1399,8 +1408,6 @@
                     $techInfo.innerHTML = `<span>👤 ${techName}</span>`;
                 }
             }
-
-            // ... (funções de tempo, UI, etc., permanecem as mesmas, com pequenas adaptações para exibir chassi no PDF e nos modais)
 
             function getCurrentTotalMs() {
                 const gen = getActiveGenerator();
@@ -1774,7 +1781,6 @@
                 });
                 $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
 
-                // Funções globais para editar/remover (agora edita nome e chassi)
                 window._editGen = function(genId) {
                     const gen = state.generators.find(g => g.id === genId);
                     if (!gen) return;
@@ -1859,10 +1865,6 @@
                 });
 
                 let startY = 82;
-                if (gen.chassi && state.technicianCPF) startY = 82;
-                else if (gen.chassi || state.technicianCPF) startY = 75;
-                else startY = 68;
-
                 doc.autoTable({
                     startY: startY,
                     head: [['Manutenção', 'Intervalo', 'Desde Última', 'Status']],
