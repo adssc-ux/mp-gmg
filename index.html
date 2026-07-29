@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js">
     </script>
     <style>
-        /* ... (mesmo CSS anterior, mantido para não repetir) ... */
+        /* ===== CSS COMPLETO (mesmo do código anterior) ===== */
         :root {
             --bg: rgba(10, 10, 18, 0.1);
             --surface: rgba(20, 20, 30, 0.1);
@@ -1237,29 +1237,29 @@
             <div class="sidebar-section">
                 <div class="sidebar-label">Técnico</div>
                 <div class="tech-info" id="techInfo">
-                    <span>👤 Não definido</span>
+                    <span>Não definido</span>
                 </div>
             </div>
             <div class="sidebar-section">
                 <div class="sidebar-label">Gerador Ativo</div>
                 <select class="generator-select" id="generatorSelect"></select>
-                <button class="btn-manage" id="btnManage">⚙ Gerenciar</button>
-                <button class="btn-pdf" id="btnPDF">📄 Relatório Completo</button>
+                <button class="btn-manage" id="btnManage">Gerenciar</button>
+                <button class="btn-pdf" id="btnPDF">Relatorio Completo</button>
             </div>
             <nav class="sidebar-nav">
                 <button class="tab-btn active" data-tab="horimetro">
-                    <span class="tab-icon">⏱️</span> Horímetro
+                    <span class="tab-icon">⏱️</span> Horimetro
                 </button>
                 <button class="tab-btn" data-tab="manutencoes">
                     <span class="tab-icon">🔧</span> Manut.
                     <span class="tab-badge" id="manutBadge">!</span>
                 </button>
                 <button class="tab-btn" data-tab="pendencias">
-                    <span class="tab-icon">⚠️</span> Pendências
+                    <span class="tab-icon">⚠️</span> Pendencias
                     <span class="tab-badge" id="pendingBadge" style="background:var(--orange);">!</span>
                 </button>
                 <button class="tab-btn" data-tab="historico">
-                    <span class="tab-icon">📋</span> Histórico
+                    <span class="tab-icon">📋</span> Historico
                     <span class="tab-badge" id="histBadge" style="background:var(--blue);">N</span>
                 </button>
             </nav>
@@ -1272,7 +1272,7 @@
                     <span class="header-subtitle">Monitoramento em tempo real</span>
                 </div>
                 <div class="current-generator-badge" id="currentGenBadge">
-                    <span class="gen-name">🔌 Nenhum gerador</span>
+                    <span class="gen-name">Nenhum gerador</span>
                     <span class="gen-chassi" id="genChassiDisplay"></span>
                 </div>
                 <div class="status-badge stopped" id="statusBadge">
@@ -1294,46 +1294,46 @@
                     </div>
                 </div>
                 <div class="controls-row">
-                    <button class="btn btn-start" id="btnStart">▶ Iniciar</button>
-                    <button class="btn btn-stop" id="btnStop" style="display:none;">⏹ Parar</button>
-                    <button class="btn btn-reset" id="btnReset">↺ Zerar</button>
+                    <button class="btn btn-start" id="btnStart">Iniciar</button>
+                    <button class="btn btn-stop" id="btnStop" style="display:none;">Parar</button>
+                    <button class="btn btn-reset" id="btnReset">Zerar</button>
                     <div class="custom-time-group">
                         <input type="number" class="custom-time-input" id="customTimeValue" value="10" min="0.1" max="99999" step="0.1" placeholder="Valor">
                         <select class="custom-time-unit" id="customTimeUnit">
                             <option value="horas">Horas</option>
                             <option value="minutos">Minutos</option>
                         </select>
-                        <button class="btn btn-simular" id="btnSimular">⏩ Adicionar</button>
+                        <button class="btn btn-simular" id="btnSimular">Adicionar</button>
                     </div>
                 </div>
             </section>
 
             <section class="tab-content" id="tab-manutencoes">
-                <div class="section-title"><span>🔧</span> Próx. Manutenções</div>
+                <div class="section-title"><span>🔧</span> Proximas Manutencoes</div>
                 <div class="maintenance-grid" id="maintenanceGrid"></div>
             </section>
 
             <section class="tab-content" id="tab-pendencias">
-                <div class="section-title"><span>⚠️</span> Pendências Registradas</div>
+                <div class="section-title"><span>⚠️</span> Pendencias Registradas</div>
                 <div class="pending-summary" id="pendingSummary">
                     <div class="stat">
                         <span class="num" id="pendingCount">0</span>
-                        <span class="label">pendências ativas</span>
+                        <span class="label">pendencias ativas</span>
                     </div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <button class="btn-pdf-pending-only" id="btnPDFPending">📄 Gerar Relatório de Pendências</button>
-                        <button class="btn-small btn-pending" id="btnAddPendingManual">➕ Nova Pendência</button>
+                        <button class="btn-pdf-pending-only" id="btnPDFPending">Gerar Relatorio de Pendencias</button>
+                        <button class="btn-small btn-pending" id="btnAddPendingManual">Nova Pendencia</button>
                     </div>
                 </div>
-                <div id="pendingContent"><p class="pending-empty">Nenhuma pendência registrada.</p></div>
+                <div id="pendingContent"><p class="pending-empty">Nenhuma pendencia registrada.</p></div>
             </section>
 
             <section class="tab-content" id="tab-historico">
-                <div class="section-title"><span>📋</span> Histórico de Manutenções</div>
-                <div id="historyContent"><p class="history-empty">Nenhuma manutenção registrada ainda.</p></div>
+                <div class="section-title"><span>📋</span> Historico de Manutencoes</div>
+                <div id="historyContent"><p class="history-empty">Nenhuma manutencao registrada ainda.</p></div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-                    <button class="btn-clear-history" id="btnClearHistory" style="display:none;">🗑 Limpar histórico</button>
-                    <button class="btn-danger-small" id="btnBackupData" style="display:none;">💾 Exportar Backup</button>
+                    <button class="btn-clear-history" id="btnClearHistory" style="display:none;">Limpar historico</button>
+                    <button class="btn-danger-small" id="btnBackupData" style="display:none;">Exportar Backup</button>
                 </div>
             </section>
         </main>
@@ -1431,30 +1431,30 @@
             animateParticles();
 
             // ====== CONFIGURAÇÕES ======
-            const STORAGE_KEY = 'horimetro_multigerador_v13';
-            const OLD_STORAGE_KEY = 'horimetro_multigerador_v12';
+            const STORAGE_KEY = 'horimetro_multigerador_v14';
+            const OLD_STORAGE_KEY = 'horimetro_multigerador_v13';
 
             const DEFAULT_MAINTENANCE_ITEMS = [
-                { id: 'oleo_motor', name: 'Troca de Óleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
+                { id: 'oleo_motor', name: 'Troca de Oleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
                     alerted: false },
                 { id: 'filtro_ar', name: 'Limpeza do Filtro de Ar', intervalHours: 25, icon: '🌬️', lastDoneAtHours: 0,
                     alerted: false },
-                { id: 'filtro_combustivel', name: 'Troca do Filtro de Combustível', intervalHours: 100, icon: '⛽',
+                { id: 'filtro_combustivel', name: 'Troca do Filtro de Combustivel', intervalHours: 100, icon: '⛽',
                     lastDoneAtHours: 0, alerted: false },
-                { id: 'vela', name: 'Troca da Vela de Ignição', intervalHours: 200, icon: '🔌', lastDoneAtHours: 0,
+                { id: 'vela', name: 'Troca da Vela de Igniçao', intervalHours: 200, icon: '🔌', lastDoneAtHours: 0,
                     alerted: false },
-                { id: 'revisao_geral', name: 'Revisão Geral Completa', intervalHours: 300, icon: '🔧', lastDoneAtHours: 0,
+                { id: 'revisao_geral', name: 'Revisao Geral Completa', intervalHours: 300, icon: '🔧', lastDoneAtHours: 0,
                     alerted: false },
             ];
 
             const PENDING_CATEGORIES = [
-                'Mecânico',
-                'Elétrico',
-                'Hidráulico',
+                'Mecanico',
+                'Eletrico',
+                'Hidraulico',
                 'Estrutural',
-                'Segurança',
+                'Seguranca',
                 'Operacional',
-                'Documentação',
+                'Documentacao',
                 'Limpeza',
                 'Outro'
             ];
@@ -1521,7 +1521,6 @@
                 }
             }
 
-            // ====== FUNÇÃO PARA EXPORTAR BACKUP ======
             function exportBackup() {
                 try {
                     const data = localStorage.getItem(STORAGE_KEY);
@@ -1538,7 +1537,7 @@
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                    showToast('✅ Backup exportado com sucesso!', 'success');
+                    showToast('Backup exportado com sucesso!', 'success');
                 } catch (e) {
                     showToast('Erro ao exportar backup.', 'overdue');
                     console.error(e);
@@ -1550,7 +1549,7 @@
                     let raw = localStorage.getItem(STORAGE_KEY);
                     if (!raw) {
                         raw = localStorage.getItem(OLD_STORAGE_KEY);
-                        if (raw) console.log('Migrando dados da versão anterior...');
+                        if (raw) console.log('Migrando dados da versao anterior...');
                     }
                     if (!raw) {
                         state.technicianName = '';
@@ -1657,19 +1656,19 @@
                 }
                 const activeGen = getActiveGenerator();
                 if (activeGen) {
-                    document.querySelector('#currentGenBadge .gen-name').textContent = `🔌 ${activeGen.name}`;
+                    document.querySelector('#currentGenBadge .gen-name').textContent = activeGen.name;
                     $genChassiDisplay.textContent = activeGen.chassi ? `Chassi: ${activeGen.chassi}` : '';
                 } else {
-                    document.querySelector('#currentGenBadge .gen-name').textContent = '🔌 Nenhum gerador';
+                    document.querySelector('#currentGenBadge .gen-name').textContent = 'Nenhum gerador';
                     $genChassiDisplay.textContent = '';
                 }
 
-                const techName = state.technicianName || 'Não definido';
+                const techName = state.technicianName || 'Nao definido';
                 const techCPF = state.technicianCPF ? `CPF: ${state.technicianCPF}` : '';
                 if (techCPF) {
-                    $techInfo.innerHTML = `<span>👤 ${techName}</span><span style="font-size:0.65rem;">🪪 ${techCPF}</span>`;
+                    $techInfo.innerHTML = `<span>${techName}</span><span style="font-size:0.65rem;">${techCPF}</span>`;
                 } else {
-                    $techInfo.innerHTML = `<span>👤 ${techName}</span>`;
+                    $techInfo.innerHTML = `<span>${techName}</span>`;
                 }
             }
 
@@ -1748,14 +1747,14 @@
                         <div class="maint-card-name">${item.name}</div>
                         <div class="maint-card-info">
                             Intervalo: <strong>${item.intervalHours}h</strong><br>
-                            Desde última: <strong>${st.since.toFixed(1)}h</strong>
-                            ${st.status === 'overdue' ? `<br><span style="color:#ff5252;">⚠ Vencido! +${(st.since - item.intervalHours).toFixed(1)}h</span>` : st.status === 'warning' ? `<br><span style="color:#ffc107;">⚠ Faltam ${st.remaining.toFixed(1)}h</span>` : `<br><span style="color:#4caf50;">✓ Faltam ${st.remaining.toFixed(1)}h</span>`}
+                            Desde ultima: <strong>${st.since.toFixed(1)}h</strong>
+                            ${st.status === 'overdue' ? `<br><span style="color:#ff5252;">Vencido! +${(st.since - item.intervalHours).toFixed(1)}h</span>` : st.status === 'warning' ? `<br><span style="color:#ffc107;">Faltam ${st.remaining.toFixed(1)}h</span>` : `<br><span style="color:#4caf50;">Faltam ${st.remaining.toFixed(1)}h</span>`}
                         </div>
                         <div class="maint-progress-bar"><div class="maint-progress-fill" style="width:${st.pct}%;"></div></div>
                         <div class="maint-card-actions">
-                            <button class="btn-small btn-do-maintenance" data-id="${item.id}">✅ Registrar</button>
-                            <button class="btn-small btn-pending" data-id="${item.id}">⚠️ Pendência</button>
-                            <button class="btn-small btn-edit" data-id="${item.id}">⚙ Editar</button>
+                            <button class="btn-small btn-do-maintenance" data-id="${item.id}">Registrar</button>
+                            <button class="btn-small btn-pending" data-id="${item.id}">Pendencia</button>
+                            <button class="btn-small btn-edit" data-id="${item.id}">Editar</button>
                         </div>
                     `;
                     $maintenanceGrid.appendChild(card);
@@ -1772,7 +1771,7 @@
             function updatePendingUI() {
                 const gen = getActiveGenerator();
                 if (!gen || gen.pendencies.length === 0) {
-                    $pendingContent.innerHTML = '<p class="pending-empty">Nenhuma pendência registrada.</p>';
+                    $pendingContent.innerHTML = '<p class="pending-empty">Nenhuma pendencia registrada.</p>';
                     $pendingBadge.classList.remove('show');
                     $pendingCount.textContent = '0';
                     return;
@@ -1789,13 +1788,13 @@
                     const div = document.createElement('div');
                     div.className = 'pending-item';
                     div.innerHTML = `
-                        <span class="pending-text">${escapeHtml(pend.description)}</span>
-                        <span class="pending-category">${escapeHtml(pend.category || 'Geral')}</span>
-                        <span class="pending-date">📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
-                        <span style="font-size:0.7rem;color:#aaa;">👤 ${escapeHtml(pend.technicianName || 'Técnico')}</span>
+                        <span class="pending-text">${pend.description}</span>
+                        <span class="pending-category">${pend.category || 'Geral'}</span>
+                        <span class="pending-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
+                        <span style="font-size:0.7rem;color:#aaa;">${pend.technicianName || 'Tecnico'}</span>
                         <div style="display:flex;gap:4px;">
-                            <button class="btn-resolve" data-index="${realIndex}">✅ Resolver</button>
-                            <button class="btn-remove-pending" data-index="${realIndex}">✕</button>
+                            <button class="btn-resolve" data-index="${realIndex}">Resolver</button>
+                            <button class="btn-remove-pending" data-index="${realIndex}">X</button>
                         </div>
                     `;
                     container.appendChild(div);
@@ -1814,7 +1813,7 @@
                 container.querySelectorAll('.btn-remove-pending').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const idx = parseInt(this.dataset.index);
-                        if (confirm('Remover esta pendência?')) {
+                        if (confirm('Remover esta pendencia?')) {
                             removePending(idx);
                         }
                     });
@@ -1830,13 +1829,13 @@
                 if (!gen || !gen.pendencies[index]) return;
 
                 const pend = gen.pendencies[index];
-                if (confirm(`Confirmar resolução da pendência:\n"${pend.description}"`)) {
+                if (confirm(`Confirmar resolucao da pendencia:\n"${pend.description}"`)) {
                     gen.maintenanceHistory.push({
                         id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
                         dateISO: new Date().toISOString(),
-                        itemName: `✅ Pendência Resolvida: ${pend.description}`,
+                        itemName: `Pendencia Resolvida: ${pend.description}`,
                         hoursAtMaintenance: getTotalHours(),
-                        technicianName: state.technicianName || 'Técnico',
+                        technicianName: state.technicianName || 'Tecnico',
                         technicianCPF: state.technicianCPF || '',
                         generatorName: gen.name,
                         generatorChassi: gen.chassi || '',
@@ -1846,7 +1845,7 @@
                     gen.pendencies.splice(index, 1);
                     saveState();
                     updateAllUI();
-                    showToast('✅ Pendência resolvida e registrada no histórico!', 'success');
+                    showToast('Pendencia resolvida e registrada no historico!', 'success');
                     playBeep();
                 }
             }
@@ -1857,13 +1856,13 @@
                 gen.pendencies.splice(index, 1);
                 saveState();
                 updateAllUI();
-                showToast('Pendência removida.', 'info');
+                showToast('Pendencia removida.', 'info');
             }
 
             function updateHistoryUI() {
                 const gen = getActiveGenerator();
                 if (!gen || gen.maintenanceHistory.length === 0) {
-                    $historyContent.innerHTML = '<p class="history-empty">Nenhuma manutenção registrada ainda.</p>';
+                    $historyContent.innerHTML = '<p class="history-empty">Nenhuma manutencao registrada ainda.</p>';
                     $btnClearHistory.style.display = 'none';
                     $btnBackupData.style.display = 'none';
                     $histBadge.classList.remove('show');
@@ -1877,9 +1876,9 @@
                         const isPending = entry.isPending || entry.isPendingResolution || false;
                         li.innerHTML = `
                             <span class="h-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
-                            <span class="h-item" style="${isPending ? 'color:#ff9800;' : ''}">${isPending ? '⚠️ ' : ''}${escapeHtml(entry.itemName)}</span>
+                            <span class="h-item" style="${isPending ? 'color:#ff9800;' : ''}">${isPending ? '' : ''}${entry.itemName}</span>
                             <span class="h-hours">${entry.hoursAtMaintenance.toFixed(1)} h</span>
-                            <span class="h-tech">👤 ${escapeHtml(entry.technicianName || 'Técnico')}</span>
+                            <span class="h-tech">${entry.technicianName || 'Tecnico'}</span>
                         `;
                         ul.appendChild(li);
                     });
@@ -1901,27 +1900,15 @@
                 updateGeneratorSelect();
             }
 
-            // ====== FUNÇÃO DE ESCAPE HTML ======
-            function escapeHtml(text) {
+            // ====== FUNÇÃO DE ESCAPE PARA PDF - REMOVE SÍMBOLOS ======
+            function cleanForPDF(text) {
                 if (!text) return '';
-                const map = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                };
-                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-            }
-
-            // ====== FUNÇÃO DE ESCAPE PARA PDF ======
-            function sanitizeForPDF(text) {
-                if (!text) return '';
-                // Remove caracteres de controle e normaliza
+                // Remove caracteres especiais, emojis e símbolos
                 return text
-                    .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
-                    .replace(/\uFFFD/g, '')
-                    .replace(/[^\x20-\x7E\u00C0-\u00FF\u0100-\u017F\u0180-\u024F]/g, '')
+                    .replace(/[\u{1F600}-\u{1F9FF}]/gu, '') // Remove emojis
+                    .replace(/[\u2600-\u27BF]/g, '') // Remove símbolos
+                    .replace(/[^\w\s.,;:()\-]/g, '') // Remove caracteres especiais
+                    .replace(/\s+/g, ' ') // Normaliza espaços
                     .trim();
             }
 
@@ -1941,13 +1928,13 @@
 
                 $modalOverlay.innerHTML = `
                     <div class="modal">
-                        <h2>⚠️ Registrar Pendência</h2>
+                        <h2>Registrar Pendencia</h2>
                         <p style="color:#ddd; margin-bottom:12px;">
-                            <strong>${escapeHtml(item.name)}</strong> - ${escapeHtml(gen.name)}
+                            <strong>${item.name}</strong> - ${gen.name}
                         </p>
                         <div class="form-group">
-                            <label>Descrição da Pendência</label>
-                            <textarea id="inputPendingDesc" placeholder="Ex: Filtro de ar obstruído, necessidade de limpeza urgente..." style="min-height:80px;"></textarea>
+                            <label>Descricao da Pendencia</label>
+                            <textarea id="inputPendingDesc" placeholder="Ex: Filtro de ar obstruido, necessidade de limpeza urgente..." style="min-height:80px;"></textarea>
                         </div>
                         <div class="form-group">
                             <label>Categoria</label>
@@ -1962,16 +1949,16 @@
                         </div>
                         <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
-                                <input type="checkbox" id="inputPendingUrgent" style="width:auto;"> 🔴 Urgente
+                                <input type="checkbox" id="inputPendingUrgent" style="width:auto;"> Urgente
                             </label>
                             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
-                                <input type="checkbox" id="inputPendingCritical" style="width:auto;"> ⚠️ Crítico
+                                <input type="checkbox" id="inputPendingCritical" style="width:auto;"> Critico
                             </label>
                         </div>
-                        <div class="modal-date-hint">📌 A pendência será registrada e exibida na lista de pendências.</div>
+                        <div class="modal-date-hint">A pendencia sera registrada e exibida na lista de pendencias.</div>
                         <div class="modal-buttons">
                             <button class="btn-cancel" id="modalCancel">Cancelar</button>
-                            <button class="btn-purple" id="modalConfirmPending">⚠️ Registrar Pendência</button>
+                            <button class="btn-purple" id="modalConfirmPending">Registrar Pendencia</button>
                         </div>
                     </div>`;
                 $modalOverlay.style.display = 'flex';
@@ -1984,7 +1971,7 @@
                     const isCritical = document.getElementById('inputPendingCritical').checked;
 
                     if (!description) {
-                        showToast('Descreva a pendência.', 'warning');
+                        showToast('Descreva a pendencia.', 'warning');
                         return;
                     }
                     if (!dateValue) {
@@ -1994,11 +1981,11 @@
 
                     let finalDesc = description;
                     if (isUrgent && isCritical) {
-                        finalDesc = '🔴⚠️ [URGENTE + CRÍTICO] ' + description;
+                        finalDesc = '[URGENTE + CRITICO] ' + description;
                     } else if (isUrgent) {
-                        finalDesc = '🔴 [URGENTE] ' + description;
+                        finalDesc = '[URGENTE] ' + description;
                     } else if (isCritical) {
-                        finalDesc = '⚠️ [CRÍTICO] ' + description;
+                        finalDesc = '[CRITICO] ' + description;
                     }
 
                     const customDateTime = new Date(`${dateValue}T12:00:00`);
@@ -2024,12 +2011,12 @@
 
                 $modalOverlay.innerHTML = `
                     <div class="modal">
-                        <h2>⚠️ Nova Pendência Manual</h2>
+                        <h2>Nova Pendencia Manual</h2>
                         <p style="color:#ddd; margin-bottom:12px;">
-                            <strong>${escapeHtml(gen.name)}</strong> - ${gen.chassi ? `Chassi: ${escapeHtml(gen.chassi)}` : ''}
+                            <strong>${gen.name}</strong> - ${gen.chassi ? `Chassi: ${gen.chassi}` : ''}
                         </p>
                         <div class="form-group">
-                            <label>Descrição do Problema</label>
+                            <label>Descricao do Problema</label>
                             <textarea id="inputPendingDesc" placeholder="Descreva detalhadamente o problema encontrado..." style="min-height:100px;"></textarea>
                         </div>
                         <div class="form-group">
@@ -2045,16 +2032,16 @@
                         </div>
                         <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
-                                <input type="checkbox" id="inputPendingUrgent" style="width:auto;"> 🔴 Urgente
+                                <input type="checkbox" id="inputPendingUrgent" style="width:auto;"> Urgente
                             </label>
                             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
-                                <input type="checkbox" id="inputPendingCritical" style="width:auto;"> ⚠️ Crítico
+                                <input type="checkbox" id="inputPendingCritical" style="width:auto;"> Critico
                             </label>
                         </div>
-                        <div class="modal-date-hint">📌 A pendência será registrada e exibida na lista de pendências.</div>
+                        <div class="modal-date-hint">A pendencia sera registrada e exibida na lista de pendencias.</div>
                         <div class="modal-buttons">
                             <button class="btn-cancel" id="modalCancel">Cancelar</button>
-                            <button class="btn-purple" id="modalConfirmPending">⚠️ Registrar Pendência</button>
+                            <button class="btn-purple" id="modalConfirmPending">Registrar Pendencia</button>
                         </div>
                     </div>`;
                 $modalOverlay.style.display = 'flex';
@@ -2067,7 +2054,7 @@
                     const isCritical = document.getElementById('inputPendingCritical').checked;
 
                     if (!description) {
-                        showToast('Descreva a pendência.', 'warning');
+                        showToast('Descreva a pendencia.', 'warning');
                         return;
                     }
                     if (!dateValue) {
@@ -2077,11 +2064,11 @@
 
                     let finalDesc = description;
                     if (isUrgent && isCritical) {
-                        finalDesc = '🔴⚠️ [URGENTE + CRÍTICO] ' + description;
+                        finalDesc = '[URGENTE + CRITICO] ' + description;
                     } else if (isUrgent) {
-                        finalDesc = '🔴 [URGENTE] ' + description;
+                        finalDesc = '[URGENTE] ' + description;
                     } else if (isCritical) {
-                        finalDesc = '⚠️ [CRÍTICO] ' + description;
+                        finalDesc = '[CRITICO] ' + description;
                     }
 
                     const customDateTime = new Date(`${dateValue}T12:00:00`);
@@ -2101,31 +2088,31 @@
                     id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
                     dateISO: dateISO || new Date().toISOString(),
                     description: description,
-                    itemName: item ? item.name : 'Pendência Manual',
+                    itemName: item ? item.name : 'Pendencia Manual',
                     itemId: itemId || 'manual',
                     category: category || 'Geral',
-                    technicianName: state.technicianName || 'Técnico',
+                    technicianName: state.technicianName || 'Tecnico',
                     technicianCPF: state.technicianCPF || '',
                     generatorName: gen.name,
                     generatorChassi: gen.chassi || '',
                     isUrgent: description.includes('[URGENTE]'),
-                    isCritical: description.includes('[CRÍTICO]'),
+                    isCritical: description.includes('[CRITICO]'),
                 };
 
                 gen.pendencies.push(pend);
                 saveState();
                 updateAllUI();
                 const d = new Date(dateISO || new Date().toISOString());
-                showToast(`⚠️ Pendência registrada em ${d.toLocaleDateString('pt-BR')}: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
+                showToast(`Pendencia registrada em ${d.toLocaleDateString('pt-BR')}: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
                     'warning');
                 playBeep();
 
                 gen.maintenanceHistory.push({
                     id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
                     dateISO: dateISO || new Date().toISOString(),
-                    itemName: `⚠️ Pendência: ${description.substring(0, 60)}${description.length > 60 ? '...' : ''}`,
+                    itemName: `Pendencia: ${description.substring(0, 60)}${description.length > 60 ? '...' : ''}`,
                     hoursAtMaintenance: getTotalHours(),
-                    technicianName: state.technicianName || 'Técnico',
+                    technicianName: state.technicianName || 'Tecnico',
                     technicianCPF: state.technicianCPF || '',
                     generatorName: gen.name,
                     generatorChassi: gen.chassi || '',
@@ -2148,20 +2135,20 @@
 
                 $modalOverlay.innerHTML = `
                     <div class="modal">
-                        <h2>📅 Registrar Manutenção</h2>
-                        <p style="color:#ddd; margin-bottom:12px;"><strong>${escapeHtml(item.name)}</strong> - ${escapeHtml(gen.name)}</p>
+                        <h2>Registrar Manutencao</h2>
+                        <p style="color:#ddd; margin-bottom:12px;"><strong>${item.name}</strong> - ${gen.name}</p>
                         <div class="form-group">
-                            <label>Data da Execução</label>
+                            <label>Data da Execucao</label>
                             <input type="date" class="modal-date-input" id="inputMaintDate" value="${todayStr}">
                         </div>
                         <div class="form-group">
-                            <label>Horário (opcional)</label>
+                            <label>Horario (opcional)</label>
                             <input type="time" class="modal-date-input" id="inputMaintTime" value="${nowTimeStr}">
                         </div>
-                        <div class="modal-date-hint">🕒 A data/hora selecionada será registrada no histórico.</div>
+                        <div class="modal-date-hint">A data/hora selecionada sera registrada no historico.</div>
                         <div class="modal-buttons">
                             <button class="btn-cancel" id="modalCancel">Cancelar</button>
-                            <button class="btn-confirm" id="modalConfirmMaint">✅ Confirmar Registro</button>
+                            <button class="btn-confirm" id="modalConfirmMaint">Confirmar Registro</button>
                         </div>
                     </div>`;
                 $modalOverlay.style.display = 'flex';
@@ -2193,7 +2180,7 @@
                     dateISO: dateISO,
                     itemName: item.name,
                     hoursAtMaintenance: totalHours,
-                    technicianName: state.technicianName || 'Técnico',
+                    technicianName: state.technicianName || 'Tecnico',
                     technicianCPF: state.technicianCPF || '',
                     generatorName: gen.name,
                     generatorChassi: gen.chassi || '',
@@ -2204,14 +2191,14 @@
                 const relatedPendencies = gen.pendencies.filter(p => p.itemId === itemId);
                 if (relatedPendencies.length > 0) {
                     gen.pendencies = gen.pendencies.filter(p => p.itemId !== itemId);
-                    showToast(`✅ ${relatedPendencies.length} pendência(s) relacionada(s) foram resolvidas automaticamente.`,
+                    showToast(`${relatedPendencies.length} pendencia(s) relacionada(s) foram resolvidas automaticamente.`,
                         'success');
                 }
 
                 saveState();
                 updateAllUI();
                 const d = new Date(dateISO);
-                showToast(`✅ Manutenção registrada em ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}: ${item.name}`,
+                showToast(`Manutencao registrada em ${d.toLocaleDateString('pt-BR')} as ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}: ${item.name}`,
                     'success');
                 playBeep();
             }
@@ -2224,7 +2211,7 @@
                 $modalOverlay.innerHTML = `
                     <div class="modal">
                         <h2>Editar Intervalo</h2>
-                        <p><strong>${escapeHtml(item.name)}</strong><br>Novo intervalo (horas):</p>
+                        <p><strong>${item.name}</strong><br>Novo intervalo (horas):</p>
                         <input type="number" id="modalIntervalInput" value="${item.intervalHours}" min="1" max="9999">
                         <div class="modal-buttons">
                             <button class="btn-cancel" id="modalCancel">Cancelar</button>
@@ -2235,7 +2222,7 @@
                 document.getElementById('modalCancel').onclick = closeModal;
                 document.getElementById('modalConfirm').onclick = () => {
                     const v = parseInt(document.getElementById('modalIntervalInput').value, 10);
-                    if (isNaN(v) || v < 1) { showToast('Valor inválido', 'warning'); return; }
+                    if (isNaN(v) || v < 1) { showToast('Valor invalido', 'warning'); return; }
                     item.intervalHours = v;
                     item.alerted = false;
                     saveState();
@@ -2252,14 +2239,14 @@
             function openManageModal() {
                 let html = `
                     <div class="modal">
-                        <h2>Gerenciar Técnico e Geradores</h2>
+                        <h2>Gerenciar Tecnico e Geradores</h2>
                         <div class="form-group">
-                            <label>Nome do Técnico Responsável</label>
-                            <input type="text" id="inputTechName" value="${escapeHtml(state.technicianName)}" placeholder="Nome completo">
+                            <label>Nome do Tecnico Responsavel</label>
+                            <input type="text" id="inputTechName" value="${state.technicianName}" placeholder="Nome completo">
                         </div>
                         <div class="form-group">
-                            <label>CPF do Técnico</label>
-                            <input type="text" id="inputTechCPF" value="${escapeHtml(state.technicianCPF)}" placeholder="000.000.000-00">
+                            <label>CPF do Tecnico</label>
+                            <input type="text" id="inputTechCPF" value="${state.technicianCPF}" placeholder="000.000.000-00">
                         </div>
                         <div class="form-group">
                             <label>Geradores Cadastrados</label>
@@ -2267,9 +2254,9 @@
                 state.generators.forEach(gen => {
                     html += `
                         <div class="gen-item">
-                            <span>${escapeHtml(gen.name)}${gen.chassi ? ` <small style="color:#aaa;">(Chassi: ${escapeHtml(gen.chassi)})</small>` : ''}</span>
-                            <button onclick="window._editGen('${gen.id}')">✏️</button>
-                            <button onclick="window._removeGen('${gen.id}')">🗑</button>
+                            <span>${gen.name}${gen.chassi ? ` <small style="color:#aaa;">(Chassi: ${gen.chassi})</small>` : ''}</span>
+                            <button onclick="window._editGen('${gen.id}')">Editar</button>
+                            <button onclick="window._removeGen('${gen.id}')">Remover</button>
                         </div>`;
                 });
                 html += `</div>
@@ -2278,7 +2265,7 @@
                             <label>Adicionar Novo Gerador</label>
                             <input type="text" id="inputNewGenName" placeholder="Nome do gerador">
                             <input type="text" id="inputNewGenChassi" placeholder="Chassi (opcional)" style="margin-top:6px;">
-                            <button class="btn-confirm" id="btnAddGen" style="margin-top:8px;">➕ Adicionar Gerador</button>
+                            <button class="btn-confirm" id="btnAddGen" style="margin-top:8px;">Adicionar Gerador</button>
                         </div>
                         <div class="modal-buttons">
                             <button class="btn-cancel" id="modalCancel">Fechar</button>
@@ -2313,13 +2300,13 @@
                     state.technicianName = this.value.trim();
                     saveState();
                     updateGeneratorSelect();
-                    showToast('Nome do técnico atualizado.', 'success');
+                    showToast('Nome do tecnico atualizado.', 'success');
                 });
                 document.getElementById('inputTechCPF').addEventListener('change', function() {
                     state.technicianCPF = this.value.trim();
                     saveState();
                     updateGeneratorSelect();
-                    showToast('CPF do técnico atualizado.', 'success');
+                    showToast('CPF do tecnico atualizado.', 'success');
                 });
                 $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
 
@@ -2328,7 +2315,7 @@
                     if (!gen) return;
                     const newName = prompt('Novo nome do gerador:', gen.name);
                     if (newName !== null && newName.trim() === '') {
-                        showToast('Nome não pode ficar vazio.', 'warning');
+                        showToast('Nome nao pode ficar vazio.', 'warning');
                         return;
                     }
                     const newChassi = prompt('Novo chassi do gerador (opcional):', gen.chassi || '');
@@ -2343,7 +2330,7 @@
                 };
                 window._removeGen = function(genId) {
                     if (state.generators.length <= 1) {
-                        showToast('É necessário pelo menos um gerador.', 'warning');
+                        showToast('E necessario pelo menos um gerador.', 'warning');
                         return;
                     }
                     if (confirm('Remover este gerador e todos os seus dados?')) {
@@ -2359,16 +2346,16 @@
                 };
             }
 
-            // ====== RELATÓRIO DE PENDÊNCIAS (CORRIGIDO) ======
+            // ====== RELATÓRIO DE PENDÊNCIAS SEPARADO - SEM SÍMBOLOS ======
             function generatePendingReport() {
                 const gen = getActiveGenerator();
                 if (!gen) {
-                    showToast('Selecione um gerador para gerar o relatório.', 'warning');
+                    showToast('Selecione um gerador para gerar o relatorio.', 'warning');
                     return;
                 }
 
                 if (gen.pendencies.length === 0) {
-                    showToast('Não há pendências para este gerador.', 'info');
+                    showToast('Nao ha pendencias para este gerador.', 'info');
                     return;
                 }
 
@@ -2376,25 +2363,24 @@
                 const doc = new jsPDF();
                 const now = new Date();
 
-                // Função para sanitizar texto para PDF
-                const s = (text) => sanitizeForPDF(text);
+                // Função para limpar texto - remove todos os símbolos
+                const clean = (text) => cleanForPDF(text);
 
                 doc.setFontSize(20);
-                doc.setTextColor(200, 80, 0);
-                doc.text('RELATÓRIO DE PENDÊNCIAS', 14, 22);
                 doc.setTextColor(0, 0, 0);
+                doc.text('RELATORIO DE PENDENCIAS', 14, 22);
 
                 doc.setFontSize(11);
-                doc.text(`Gerador: ${s(gen.name)}`, 14, 32);
+                doc.text(`Gerador: ${clean(gen.name)}`, 14, 32);
                 if (gen.chassi) {
-                    doc.text(`Chassi: ${s(gen.chassi)}`, 14, 39);
+                    doc.text(`Chassi: ${clean(gen.chassi)}`, 14, 39);
                 }
-                doc.text(`Técnico Responsável: ${s(state.technicianName || 'Não definido')}`, 14, 46);
+                doc.text(`Tecnico Responsavel: ${clean(state.technicianName || 'Nao definido')}`, 14, 46);
                 if (state.technicianCPF) {
-                    doc.text(`CPF do Técnico: ${s(state.technicianCPF)}`, 14, 53);
+                    doc.text(`CPF do Tecnico: ${clean(state.technicianCPF)}`, 14, 53);
                 }
                 doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 60);
-                doc.text(`Total de Pendências: ${gen.pendencies.length}`, 14, 67);
+                doc.text(`Total de Pendencias: ${gen.pendencies.length}`, 14, 67);
 
                 // Contagem por categoria
                 const categoryCount = {};
@@ -2408,7 +2394,7 @@
                 doc.text('Resumo por Categoria:', 14, yPos);
                 yPos += 5;
 
-                const catRows = Object.entries(categoryCount).map(([cat, count]) => [s(cat), count.toString()]);
+                const catRows = Object.entries(categoryCount).map(([cat, count]) => [clean(cat), count.toString()]);
                 doc.autoTable({
                     startY: yPos,
                     head: [['Categoria', 'Quantidade']],
@@ -2422,29 +2408,26 @@
 
                 // Lista detalhada de pendências
                 doc.setFontSize(14);
-                doc.text('Lista Detalhada de Pendências', 14, yPos);
+                doc.text('Lista Detalhada de Pendencias', 14, yPos);
                 yPos += 5;
 
                 const pendingRows = gen.pendencies.map(p => {
                     const d = new Date(p.dateISO);
-                    const urgency = p.isCritical ? 'Crítico' : p.isUrgent ? 'Urgente' : 'Normal';
-                    // Sanitiza a descrição
-                    let desc = s(p.description);
+                    let desc = clean(p.description);
                     if (desc.length > 60) desc = desc.substring(0, 57) + '...';
                     return [
                         d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit',
                             minute: '2-digit' }),
                         desc,
-                        s(p.category || 'Geral'),
-                        urgency,
-                        s(p.technicianName || 'Técnico')
+                        clean(p.category || 'Geral'),
+                        clean(p.technicianName || 'Tecnico')
                     ];
                 });
 
                 doc.autoTable({
                     startY: yPos + 2,
                     head: [
-                        ['Data', 'Descrição', 'Categoria', 'Urgência', 'Registrado Por']
+                        ['Data', 'Descricao', 'Categoria', 'Registrado Por']
                     ],
                     body: pendingRows,
                     theme: 'grid',
@@ -2458,18 +2441,18 @@
                 const finalY = doc.lastAutoTable.finalY + 20;
                 doc.setFontSize(10);
                 doc.text('_________________________________________', 14, finalY);
-                doc.text('Assinatura do Técnico Responsável', 14, finalY + 6);
+                doc.text('Assinatura do Tecnico Responsavel', 14, finalY + 6);
                 doc.text(`Gerado em: ${now.toLocaleString('pt-BR')}`, 14, finalY + 14);
 
-                doc.save(`relatorio_pendencias_${s(gen.name).replace(/\s+/g, '_')}.pdf`);
-                showToast('Relatório de Pendências gerado com sucesso!', 'success');
+                doc.save(`relatorio_pendencias_${clean(gen.name).replace(/\s+/g, '_')}.pdf`);
+                showToast('Relatorio de Pendencias gerado com sucesso!', 'success');
             }
 
-            // ====== RELATÓRIO COMPLETO (CORRIGIDO) ======
+            // ====== RELATÓRIO COMPLETO - SEM SÍMBOLOS ======
             function generateFullPDF() {
                 const gen = getActiveGenerator();
                 if (!gen) {
-                    showToast('Selecione um gerador para gerar o relatório.', 'warning');
+                    showToast('Selecione um gerador para gerar o relatorio.', 'warning');
                     return;
                 }
                 const { jsPDF } = window.jspdf;
@@ -2478,18 +2461,18 @@
                 const formatted = formatTime(getCurrentTotalMs());
                 const now = new Date();
 
-                const s = (text) => sanitizeForPDF(text);
+                const clean = (text) => cleanForPDF(text);
 
                 doc.setFontSize(18);
-                doc.text('RELATÓRIO DE MANUTENÇÃO E PENDÊNCIAS', 14, 22);
+                doc.text('RELATORIO DE MANUTENCAO E PENDENCIAS', 14, 22);
                 doc.setFontSize(11);
-                doc.text(`Gerador: ${s(gen.name)}`, 14, 32);
+                doc.text(`Gerador: ${clean(gen.name)}`, 14, 32);
                 if (gen.chassi) {
-                    doc.text(`Chassi: ${s(gen.chassi)}`, 14, 39);
+                    doc.text(`Chassi: ${clean(gen.chassi)}`, 14, 39);
                 }
-                doc.text(`Técnico Responsável: ${s(state.technicianName || 'Não definido')}`, 14, 46);
+                doc.text(`Tecnico Responsavel: ${clean(state.technicianName || 'Nao definido')}`, 14, 46);
                 if (state.technicianCPF) {
-                    doc.text(`CPF do Técnico: ${s(state.technicianCPF)}`, 14, 53);
+                    doc.text(`CPF do Tecnico: ${clean(state.technicianCPF)}`, 14, 53);
                 }
                 doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 60);
                 doc.text(`Horas Totais: ${formatted.hoursStr}:${formatted.minutesStr}:${formatted.secondsStr}`, 14, 67);
@@ -2500,56 +2483,52 @@
                 // Seção de Pendências
                 if (gen.pendencies.length > 0) {
                     doc.setFontSize(14);
-                    doc.setTextColor(200, 80, 0);
-                    doc.text(`PENDÊNCIAS REGISTRADAS (${gen.pendencies.length})`, 14, startY);
-                    doc.setTextColor(0, 0, 0);
+                    doc.text(`PENDENCIAS REGISTRADAS (${gen.pendencies.length})`, 14, startY);
 
                     const pendingRows = gen.pendencies.map(p => {
                         const d = new Date(p.dateISO);
-                        const urgency = p.isCritical ? 'Crítico' : p.isUrgent ? 'Urgente' : 'Normal';
-                        let desc = s(p.description);
+                        let desc = clean(p.description);
                         if (desc.length > 50) desc = desc.substring(0, 47) + '...';
                         return [
                             d.toLocaleDateString('pt-BR'),
                             desc,
-                            s(p.category || 'Geral'),
-                            urgency,
-                            s(p.technicianName || 'Técnico')
+                            clean(p.category || 'Geral'),
+                            clean(p.technicianName || 'Tecnico')
                         ];
                     });
 
                     doc.autoTable({
                         startY: startY + 5,
                         head: [
-                            ['Data', 'Descrição', 'Categoria', 'Urgência', 'Registrado Por']
+                            ['Data', 'Descricao', 'Categoria', 'Registrado Por']
                         ],
                         body: pendingRows,
                         theme: 'grid',
                         headStyles: { fillColor: [200, 80, 0] },
                         styles: { fontSize: 7 },
                         columnStyles: {
-                            1: { cellWidth: 60 },
+                            1: { cellWidth: 65 },
                         },
                     });
                     startY = doc.lastAutoTable.finalY + 8;
                 } else {
                     doc.setFontSize(11);
-                    doc.text('Nenhuma pendência registrada.', 14, startY);
+                    doc.text('Nenhuma pendencia registrada.', 14, startY);
                     startY += 8;
                 }
 
                 // Seção de Manutenções Previstas
                 doc.setFontSize(14);
-                doc.text('MANUTENÇÕES PREVISTAS', 14, startY);
+                doc.text('MANUTENCOES PREVISTAS', 14, startY);
                 startY += 5;
 
                 const maintenanceRows = gen.maintenanceItems.map(item => {
                     const st = getMaintenanceStatus(item, totalHours);
                     let status = 'OK';
-                    if (st.status === 'warning') status = 'Próximo';
+                    if (st.status === 'warning') status = 'Proximo';
                     if (st.status === 'overdue') status = 'Vencido';
                     return [
-                        s(item.name),
+                        clean(item.name),
                         `${item.intervalHours}h`,
                         `${st.since.toFixed(1)}h`,
                         status
@@ -2559,7 +2538,7 @@
                 doc.autoTable({
                     startY: startY + 2,
                     head: [
-                        ['Manutenção', 'Intervalo', 'Desde Última', 'Status']
+                        ['Manutencao', 'Intervalo', 'Desde Ultima', 'Status']
                     ],
                     body: maintenanceRows,
                     theme: 'grid',
@@ -2572,27 +2551,23 @@
                 // Seção de Histórico
                 if (gen.maintenanceHistory.length > 0) {
                     doc.setFontSize(14);
-                    doc.text('HISTÓRICO DE MANUTENÇÕES', 14, historyStartY);
+                    doc.text('HISTORICO DE MANUTENCOES', 14, historyStartY);
                     const historyRows = gen.maintenanceHistory.map(entry => {
                         const d = new Date(entry.dateISO);
-                        const isPending = entry.isPending || entry.isPendingResolution || false;
-                        let itemName = s(entry.itemName);
-                        if (isPending) {
-                            itemName = 'Pendência: ' + itemName;
-                        }
+                        let itemName = clean(entry.itemName);
                         if (itemName.length > 50) itemName = itemName.substring(0, 47) + '...';
                         return [
                             d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit',
                                 minute: '2-digit' }),
                             itemName,
                             `${entry.hoursAtMaintenance.toFixed(1)}h`,
-                            s(entry.technicianName || 'Técnico')
+                            clean(entry.technicianName || 'Tecnico')
                         ];
                     });
                     doc.autoTable({
                         startY: historyStartY + 5,
                         head: [
-                            ['Data', 'Registro', 'Horas no momento', 'Técnico']
+                            ['Data', 'Registro', 'Horas no momento', 'Tecnico']
                         ],
                         body: historyRows,
                         theme: 'grid',
@@ -2601,8 +2576,8 @@
                     });
                 }
 
-                doc.save(`relatorio_completo_${s(gen.name).replace(/\s+/g, '_')}.pdf`);
-                showToast('Relatório completo gerado com sucesso!', 'success');
+                doc.save(`relatorio_completo_${clean(gen.name).replace(/\s+/g, '_')}.pdf`);
+                showToast('Relatorio completo gerado com sucesso!', 'success');
             }
 
             // ====== CONTROLES ======
@@ -2635,7 +2610,7 @@
                 saveState();
                 updateAllUI();
                 startDisplayInterval();
-                showToast(`Horímetro iniciado: ${gen.name}`, 'success');
+                showToast(`Horimetro iniciado: ${gen.name}`, 'success');
             }
 
             function stopTimer() {
@@ -2645,7 +2620,7 @@
                 saveState();
                 updateAllUI();
                 stopDisplayInterval();
-                showToast(`Horímetro parado: ${gen.name}`, 'success');
+                showToast(`Horimetro parado: ${gen.name}`, 'success');
             }
 
             function stopTimerInternal(gen) {
@@ -2660,10 +2635,10 @@
                 if (!gen) return;
                 if (gen.pendencies.length > 0) {
                     if (!confirm(
-                            `Este gerador possui ${gen.pendencies.length} pendência(s) não resolvidas. Deseja continuar com o zeramento?`
+                            `Este gerador possui ${gen.pendencies.length} pendencia(s) nao resolvidas. Deseja continuar com o zeramento?`
                             )) return;
                 }
-                if (!confirm(`TEM CERTEZA que deseja zerar TODOS OS DADOS do gerador "${gen.name}"? Esta ação é irreversível!`))
+                if (!confirm(`TEM CERTEZA que deseja zerar TODOS OS DADOS do gerador "${gen.name}"? Esta acao e irreversivel!`))
                     return;
 
                 gen.totalMilliseconds = 0;
@@ -2676,7 +2651,7 @@
                 saveState();
                 updateAllUI();
                 stopDisplayInterval();
-                showToast(`Horímetro zerado: ${gen.name}`, 'success');
+                showToast(`Horimetro zerado: ${gen.name}`, 'success');
             }
 
             function simulateTime() {
@@ -2687,7 +2662,7 @@
                 let value = parseFloat(rawValue);
 
                 if (isNaN(value) || value <= 0) {
-                    showToast('Informe um valor válido.', 'warning');
+                    showToast('Informe um valor valido.', 'warning');
                     return;
                 }
 
@@ -2703,14 +2678,14 @@
                 }
 
                 if (hoursToAdd > 99999) {
-                    showToast('Valor máximo permitido: 99999 horas.', 'warning');
+                    showToast('Valor maximo permitido: 99999 horas.', 'warning');
                     return;
                 }
 
                 const displayValue = unit === 'minutos' ? `${value} ${displayUnit}` :
                     `${value.toFixed(2)} ${displayUnit}`;
 
-                if (!confirm(`Adicionar ${displayValue} ao horímetro de "${gen.name}"?`)) return;
+                if (!confirm(`Adicionar ${displayValue} ao horimetro de "${gen.name}"?`)) return;
 
                 const ms = hoursToAdd * 3600000;
                 if (gen.isRunning) {
@@ -2740,7 +2715,7 @@
                     } else if (since >= item.intervalHours * 0.8 && since < item.intervalHours && !item.alerted) {
                         item.alerted = true;
                         saveState();
-                        showToast(`Próximo: ${item.name}`, 'warning');
+                        showToast(`Proximo: ${item.name}`, 'warning');
                         playBeep();
                     }
                 });
@@ -2796,11 +2771,11 @@
 
             $btnClearHistory.addEventListener('click', () => {
                 const gen = getActiveGenerator();
-                if (gen && confirm('TEM CERTEZA que deseja LIMPAR TODO O HISTÓRICO deste gerador? Esta ação é irreversível!')) {
+                if (gen && confirm('TEM CERTEZA que deseja LIMPAR TODO O HISTORICO deste gerador? Esta acao e irreversivel!')) {
                     gen.maintenanceHistory = [];
                     saveState();
                     updateHistoryUI();
-                    showToast('Histórico limpo.', 'success');
+                    showToast('Historico limpo.', 'success');
                 }
             });
 
