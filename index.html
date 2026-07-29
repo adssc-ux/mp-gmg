@@ -1430,9 +1430,10 @@
             initParticles();
             animateParticles();
 
-            // ====== CONFIGURAÇÕES ======
-            const STORAGE_KEY = 'horimetro_multigerador_v14';
-            const OLD_STORAGE_KEY = 'horimetro_multigerador_v13';
+            // ====== CONFIGURAÇÕES - VERSÃO ESTÁVEL ======
+            // Mantemos a mesma chave para não perder dados
+            const STORAGE_KEY = 'horimetro_multigerador_v13';
+            const OLD_STORAGE_KEYS = ['horimetro_multigerador_v12', 'horimetro_multigerador_v11', 'horimetro_multigerador_v10'];
 
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Oleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
@@ -1504,7 +1505,7 @@
             let displayIntervalId = null;
             let maintUpdateIntervalId = null;
 
-            // ====== FUNÇÕES DE ESTADO ======
+            // ====== FUNÇÕES DE ESTADO COM MIGRAÇÃO ROBUSTA ======
             function saveState() {
                 try {
                     if (state.activeGeneratorId) {
@@ -1515,7 +1516,6 @@
                         }
                     }
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                    localStorage.removeItem(OLD_STORAGE_KEY);
                 } catch (e) {
                     console.error('Erro ao salvar estado:', e);
                 }
@@ -1544,14 +1544,73 @@
                 }
             }
 
+            // ====== FUNÇÃO DE MIGRAÇÃO MELHORADA ======
+            function migrateData() {
+                // Tenta carregar da chave atual primeiro
+                let raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && parsed.generators && parsed.generators.length > 0) {
+                            return raw; // Dados válidos encontrados
+                        }
+                    } catch (e) {
+                        console.warn('Dados da chave atual corrompidos, tentando migrar...');
+                    }
+                }
+
+                // Tenta migrar das chaves antigas
+                for (const oldKey of OLD_STORAGE_KEYS) {
+                    const oldData = localStorage.getItem(oldKey);
+                    if (oldData) {
+                        try {
+                            const parsed = JSON.parse(oldData);
+                            if (parsed && parsed.generators && parsed.generators.length > 0) {
+                                console.log(`Dados migrados da chave: ${oldKey}`);
+                                // Salva na chave atual
+                                localStorage.setItem(STORAGE_KEY, oldData);
+                                // Remove a chave antiga para limpeza
+                                localStorage.removeItem(oldKey);
+                                return oldData;
+                            }
+                        } catch (e) {
+                            console.warn(`Erro ao migrar da chave ${oldKey}:`, e);
+                        }
+                    }
+                }
+
+                // Tenta buscar qualquer chave que comece com 'horimetro_multigerador_v'
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('horimetro_multigerador_v') && key !== STORAGE_KEY) {
+                        try {
+                            const data = localStorage.getItem(key);
+                            const parsed = JSON.parse(data);
+                            if (parsed && parsed.generators && parsed.generators.length > 0) {
+                                console.log(`Dados migrados da chave: ${key}`);
+                                localStorage.setItem(STORAGE_KEY, data);
+                                localStorage.removeItem(key);
+                                return data;
+                            }
+                        } catch (e) {
+                            console.warn(`Erro ao migrar da chave ${key}:`, e);
+                        }
+                    }
+                }
+
+                return null; // Nenhum dado válido encontrado
+            }
+
             function loadState() {
                 try {
-                    let raw = localStorage.getItem(STORAGE_KEY);
+                    // Primeiro tenta migrar dados de versões anteriores
+                    const migratedData = migrateData();
+
+                    let raw = migratedData || localStorage.getItem(STORAGE_KEY);
+
                     if (!raw) {
-                        raw = localStorage.getItem(OLD_STORAGE_KEY);
-                        if (raw) console.log('Migrando dados da versao anterior...');
-                    }
-                    if (!raw) {
+                        // Nenhum dado encontrado, cria estado padrão
+                        console.log('Nenhum dado encontrado, criando estado padrão...');
                         state.technicianName = '';
                         state.technicianCPF = '';
                         state.generators = [{
@@ -1569,13 +1628,19 @@
                         saveState();
                         return;
                     }
+
+                    // Tenta parsear os dados
                     const parsed = JSON.parse(raw);
+
+                    // Valida se os dados estão completos
+                    if (!parsed.generators || parsed.generators.length === 0) {
+                        throw new Error('Dados inválidos: nenhum gerador encontrado');
+                    }
+
                     state.technicianName = parsed.technicianName || '';
                     state.technicianCPF = parsed.technicianCPF || '';
-                    state.generators = parsed.generators || [];
-                    state.activeGeneratorId = parsed.activeGeneratorId || (state.generators[0] ? state.generators[0].id : null);
-
-                    state.generators = state.generators.map(gen => {
+                    state.generators = parsed.generators.map(gen => {
+                        // Garante que todos os campos necessários existam
                         return {
                             id: gen.id || 'gen_' + Date.now(),
                             name: gen.name || 'Gerador',
@@ -1593,12 +1658,24 @@
                         };
                     });
 
-                    if (!state.activeGeneratorId && state.generators.length > 0) {
-                        state.activeGeneratorId = state.generators[0].id;
+                    state.activeGeneratorId = parsed.activeGeneratorId || (state.generators[0] ? state.generators[0].id : null);
+
+                    // Se o activeGeneratorId não for válido, usa o primeiro
+                    if (!state.generators.find(g => g.id === state.activeGeneratorId)) {
+                        state.activeGeneratorId = state.generators[0] ? state.generators[0].id : null;
                     }
+
+                    // Salva o estado migrado
                     saveState();
+
+                    // Mostra mensagem de sucesso
+                    const genCount = state.generators.length;
+                    const pendCount = state.generators.reduce((sum, g) => sum + (g.pendencies ? g.pendencies.length : 0), 0);
+                    console.log(`Dados carregados: ${genCount} gerador(es), ${pendCount} pendência(s)`);
+
                 } catch (e) {
                     console.error('Erro ao carregar estado, recriando...', e);
+                    // Em caso de erro, recria o estado padrão
                     state.technicianName = '';
                     state.technicianCPF = '';
                     state.generators = [{
@@ -1903,12 +1980,11 @@
             // ====== FUNÇÃO DE ESCAPE PARA PDF - REMOVE SÍMBOLOS ======
             function cleanForPDF(text) {
                 if (!text) return '';
-                // Remove caracteres especiais, emojis e símbolos
                 return text
-                    .replace(/[\u{1F600}-\u{1F9FF}]/gu, '') // Remove emojis
-                    .replace(/[\u2600-\u27BF]/g, '') // Remove símbolos
-                    .replace(/[^\w\s.,;:()\-]/g, '') // Remove caracteres especiais
-                    .replace(/\s+/g, ' ') // Normaliza espaços
+                    .replace(/[\u{1F600}-\u{1F9FF}]/gu, '')
+                    .replace(/[\u2600-\u27BF]/g, '')
+                    .replace(/[^\w\s.,;:()\-]/g, '')
+                    .replace(/\s+/g, ' ')
                     .trim();
             }
 
@@ -2363,7 +2439,6 @@
                 const doc = new jsPDF();
                 const now = new Date();
 
-                // Função para limpar texto - remove todos os símbolos
                 const clean = (text) => cleanForPDF(text);
 
                 doc.setFontSize(20);
@@ -2382,7 +2457,6 @@
                 doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 60);
                 doc.text(`Total de Pendencias: ${gen.pendencies.length}`, 14, 67);
 
-                // Contagem por categoria
                 const categoryCount = {};
                 gen.pendencies.forEach(p => {
                     const cat = p.category || 'Geral';
@@ -2406,7 +2480,6 @@
 
                 yPos = doc.lastAutoTable.finalY + 8;
 
-                // Lista detalhada de pendências
                 doc.setFontSize(14);
                 doc.text('Lista Detalhada de Pendencias', 14, yPos);
                 yPos += 5;
@@ -2480,7 +2553,6 @@
 
                 let startY = 82;
 
-                // Seção de Pendências
                 if (gen.pendencies.length > 0) {
                     doc.setFontSize(14);
                     doc.text(`PENDENCIAS REGISTRADAS (${gen.pendencies.length})`, 14, startY);
@@ -2517,7 +2589,6 @@
                     startY += 8;
                 }
 
-                // Seção de Manutenções Previstas
                 doc.setFontSize(14);
                 doc.text('MANUTENCOES PREVISTAS', 14, startY);
                 startY += 5;
@@ -2548,7 +2619,6 @@
 
                 let historyStartY = doc.lastAutoTable.finalY + 10;
 
-                // Seção de Histórico
                 if (gen.maintenanceHistory.length > 0) {
                     doc.setFontSize(14);
                     doc.text('HISTORICO DE MANUTENCOES', 14, historyStartY);
@@ -2813,6 +2883,11 @@
                 switchTab('horimetro');
 
                 updatePendingUI();
+
+                // Mostra contagem de dados carregados
+                const totalGens = state.generators.length;
+                const totalPends = state.generators.reduce((sum, g) => sum + (g.pendencies ? g.pendencies.length : 0), 0);
+                console.log(`Sistema inicializado: ${totalGens} gerador(es), ${totalPends} pendencia(s)`);
             }
 
             window.addEventListener('beforeunload', () => {
