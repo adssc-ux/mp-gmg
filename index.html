@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js">
     </script>
     <style>
-        /* ===== CSS COMPLETO (mesmo do código anterior) ===== */
+        /* ===== CSS COMPLETO ===== */
         :root {
             --bg: rgba(10, 10, 18, 0.1);
             --surface: rgba(20, 20, 30, 0.1);
@@ -791,6 +791,22 @@
             font-size: 0.65rem;
             color: #aaa;
         }
+        .history-item .btn-delete-entry {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            color: #ff6b6b;
+            padding: 2px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.6rem;
+            font-weight: 600;
+            transition: all var(--transition);
+            font-family: var(--font-body);
+        }
+        .history-item .btn-delete-entry:hover {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: var(--red);
+        }
         .history-empty {
             text-align: center;
             color: var(--text-secondary);
@@ -1239,6 +1255,13 @@
             border-color: var(--red);
         }
 
+        .history-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
         @media (max-width: 750px) {
             .brand-logo {
                 top: 10px;
@@ -1301,6 +1324,14 @@
             }
             .pending-summary .stats {
                 gap: 8px;
+            }
+            .history-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 4px;
+            }
+            .history-item .h-date {
+                min-width: auto;
             }
         }
     </style>
@@ -1453,8 +1484,8 @@
             <section class="tab-content" id="tab-historico">
                 <div class="section-title"><span>📋</span> Historico de Manutencoes</div>
                 <div id="historyContent"><p class="history-empty">Nenhuma manutencao registrada ainda.</p></div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-                    <button class="btn-clear-history" id="btnClearHistory" style="display:none;">Limpar historico</button>
+                <div class="history-actions">
+                    <button class="btn-clear-history" id="btnClearHistory" style="display:none;">Limpar todo o historico</button>
                     <button class="btn-danger-small" id="btnBackupData" style="display:none;">Exportar Backup</button>
                 </div>
             </section>
@@ -1552,7 +1583,7 @@
             initParticles();
             animateParticles();
 
-            // ====== CONFIGURAÇÕES - MANTENDO A MESMA CHAVE PARA NÃO PERDER DADOS ======
+            // ====== CONFIGURAÇÕES - MANTENDO A MESMA CHAVE ======
             const STORAGE_KEY = 'horimetro_multigerador_v13';
             const OLD_STORAGE_KEYS = ['horimetro_multigerador_v12', 'horimetro_multigerador_v11', 'horimetro_multigerador_v10'];
 
@@ -1635,7 +1666,7 @@
             let displayIntervalId = null;
             let maintUpdateIntervalId = null;
 
-            // ====== FUNÇÃO DE SALVAR - MANTÉM A MESMA CHAVE ======
+            // ====== FUNÇÃO DE SALVAR ======
             function saveState() {
                 try {
                     if (state.activeGeneratorId) {
@@ -1646,7 +1677,6 @@
                         }
                     }
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                    // Remove chaves antigas para não acumular
                     OLD_STORAGE_KEYS.forEach(key => {
                         if (localStorage.getItem(key)) {
                             localStorage.removeItem(key);
@@ -1680,22 +1710,20 @@
                 }
             }
 
-            // ====== FUNÇÃO DE MIGRAÇÃO MELHORADA ======
+            // ====== FUNÇÃO DE MIGRAÇÃO ======
             function migrateData() {
-                // Primeiro tenta carregar da chave atual
                 let raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     try {
                         const parsed = JSON.parse(raw);
                         if (parsed && parsed.generators && parsed.generators.length > 0) {
-                            return raw; // Dados válidos encontrados
+                            return raw;
                         }
                     } catch (e) {
                         console.warn('Dados da chave atual corrompidos, tentando migrar...');
                     }
                 }
 
-                // Tenta migrar das chaves antigas
                 for (const oldKey of OLD_STORAGE_KEYS) {
                     const oldData = localStorage.getItem(oldKey);
                     if (oldData) {
@@ -1713,7 +1741,6 @@
                     }
                 }
 
-                // Busca por qualquer chave que comece com 'horimetro_multigerador_v'
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key && key.startsWith('horimetro_multigerador_v') && key !== STORAGE_KEY) {
@@ -1735,10 +1762,9 @@
                 return null;
             }
 
-            // ====== FUNÇÃO DE CARREGAR - PRIORIZA DADOS EXISTENTES ======
+            // ====== FUNÇÃO DE CARREGAR ======
             function loadState() {
                 try {
-                    // Tenta migrar dados de versões anteriores
                     const migratedData = migrateData();
                     let raw = migratedData || localStorage.getItem(STORAGE_KEY);
 
@@ -1769,11 +1795,9 @@
                         throw new Error('Dados inválidos: nenhum gerador encontrado');
                     }
 
-                    // Mantém os dados existentes, apenas adiciona os novos campos se necessário
                     state.technicianName = parsed.technicianName || '';
                     state.technicianCPF = parsed.technicianCPF || '';
                     state.generators = parsed.generators.map(gen => {
-                        // Preserva todos os dados existentes
                         return {
                             id: gen.id || 'gen_' + Date.now(),
                             name: gen.name || 'Gerador',
@@ -1798,7 +1822,6 @@
                         state.activeGeneratorId = state.generators[0] ? state.generators[0].id : null;
                     }
 
-                    // Salva o estado migrado
                     saveState();
 
                     const genCount = state.generators.length;
@@ -1807,7 +1830,6 @@
                         .length : 0), 0);
                     console.log(`Dados carregados: ${genCount} gerador(es), ${pendCount} pendência(s), ${resolvedCount} resolvida(s)`);
                     
-                    // Mostra toast de confirmação
                     if (genCount > 0) {
                         showToast(`Dados carregados: ${genCount} gerador(es), ${pendCount + resolvedCount} pendência(s)`, 'success');
                     }
@@ -1857,7 +1879,7 @@
                 }
             }
 
-            // ====== FUNÇÕES DE ATUALIZAÇÃO (mantidas do código anterior) ======
+            // ====== FUNÇÕES DE ATUALIZAÇÃO ======
             function updateGeneratorSelect() {
                 $generatorSelect.innerHTML = '';
                 state.generators.forEach(gen => {
@@ -1984,7 +2006,7 @@
                     openEditIntervalModal(b.dataset.id)));
             }
 
-            // ====== FUNÇÃO PARA ABRIR MODAL DE EDIÇÃO DE PENDÊNCIA ======
+            // ====== FUNÇÕES DE EDIÇÃO E RESOLUÇÃO DE PENDÊNCIAS ======
             function openEditPendingModal(index, isResolved) {
                 const gen = getActiveGenerator();
                 if (!gen) return;
@@ -2102,7 +2124,6 @@
                 $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
             }
 
-            // ====== FUNÇÃO PARA RESOLVER PENDÊNCIA COM DATA E HORA ======
             function openResolvePendingModal(index) {
                 const gen = getActiveGenerator();
                 if (!gen || !gen.pendencies[index]) return;
@@ -2201,7 +2222,7 @@
                 playBeep();
             }
 
-            // ====== FUNÇÃO PARA RENDERIZAR LISTA DE PENDÊNCIAS COM EDIÇÃO ======
+            // ====== FUNÇÃO PARA RENDERIZAR LISTA DE PENDÊNCIAS ======
             function renderPendingList(container, pendencies, type) {
                 if (!pendencies || pendencies.length === 0) {
                     const msg = type === 'active' ? 'Nenhuma pendencia ativa.' :
@@ -2261,7 +2282,6 @@
                 container.innerHTML = '';
                 container.appendChild(list);
 
-                // Event listeners
                 list.querySelectorAll('.btn-resolve').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const idx = parseInt(this.dataset.index);
@@ -2342,6 +2362,21 @@
                 renderPendingList($pendingAllContent, allPendencies, 'all');
             }
 
+            // ====== FUNÇÃO PARA DELETAR ENTRADA DO HISTÓRICO ======
+            function deleteHistoryEntry(index) {
+                const gen = getActiveGenerator();
+                if (!gen || !gen.maintenanceHistory[index]) return;
+
+                const entry = gen.maintenanceHistory[index];
+                if (confirm(`Tem certeza que deseja excluir esta entrada do histórico?\n\n"${entry.itemName}"\nData: ${new Date(entry.dateISO).toLocaleString('pt-BR')}`)) {
+                    gen.maintenanceHistory.splice(index, 1);
+                    saveState();
+                    updateHistoryUI();
+                    showToast('Entrada do histórico removida com sucesso!', 'success');
+                }
+            }
+
+            // ====== FUNÇÃO PARA ATUALIZAR HISTÓRICO COM BOTÃO DE EXCLUSÃO ======
             function updateHistoryUI() {
                 const gen = getActiveGenerator();
                 if (!gen || gen.maintenanceHistory.length === 0) {
@@ -2352,26 +2387,44 @@
                 } else {
                     const ul = document.createElement('ul');
                     ul.className = 'history-list';
-                    [...gen.maintenanceHistory].reverse().forEach(entry => {
+                    
+                    // Exibe do mais recente para o mais antigo
+                    const reversed = [...gen.maintenanceHistory].reverse();
+                    
+                    reversed.forEach((entry, idx) => {
+                        // Calcula o índice real no array original
+                        const realIndex = gen.maintenanceHistory.length - 1 - idx;
+                        
                         const d = new Date(entry.dateISO);
                         const li = document.createElement('li');
                         li.className = 'history-item';
                         const isPending = entry.isPending || entry.isPendingResolution || false;
                         const obsText = entry.resolutionObs ? ` (${entry.resolutionObs})` : '';
+                        
                         li.innerHTML = `
                             <span class="h-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
                             <span class="h-item" style="${isPending ? 'color:#ff9800;' : ''}">${isPending ? '' : ''}${entry.itemName}${obsText}</span>
                             <span class="h-hours">${entry.hoursAtMaintenance.toFixed(1)} h</span>
                             <span class="h-tech">${entry.technicianName || 'Tecnico'}</span>
+                            <button class="btn-delete-entry" data-index="${realIndex}">🗑 Excluir</button>
                         `;
                         ul.appendChild(li);
                     });
+                    
                     $historyContent.innerHTML = '';
                     $historyContent.appendChild(ul);
                     $btnClearHistory.style.display = 'inline-block';
                     $btnBackupData.style.display = 'inline-block';
                     $histBadge.classList.add('show');
                     $histBadge.textContent = gen.maintenanceHistory.length;
+                    
+                    // Adiciona event listeners para os botões de excluir
+                    ul.querySelectorAll('.btn-delete-entry').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.dataset.index);
+                            deleteHistoryEntry(index);
+                        });
+                    });
                 }
             }
 
@@ -3362,7 +3415,6 @@
                     .length : 0), 0);
                 console.log(`Sistema inicializado: ${totalGens} gerador(es), ${totalPends} pendencia(s), ${totalResolved} resolvida(s)`);
                 
-                // Mostra toast com resumo
                 if (totalGens > 0) {
                     showToast(`Bem vindo! ${totalGens} gerador(es), ${totalPends + totalResolved} pendencia(s) carregadas`, 'success');
                 }
