@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js">
     </script>
     <style>
-        /* ===== CSS COMPLETO (mesmo do código anterior) ===== */
+        /* ===== CSS COMPLETO ===== */
         :root {
             --bg: rgba(10, 10, 18, 0.1);
             --surface: rgba(20, 20, 30, 0.1);
@@ -1027,47 +1027,101 @@
             }
         }
 
+        /* ===== NOVOS ESTILOS PARA PENDÊNCIAS ===== */
+        .pending-section {
+            background: var(--surface2);
+            backdrop-filter: blur(calc(var(--backdrop-blur) * 2));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 8px;
+        }
+        .pending-section-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #ffffff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pending-section-title .badge {
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .badge-active {
+            background: rgba(231, 76, 60, 0.3);
+            color: #ff6b6b;
+        }
+        .badge-resolved {
+            background: rgba(46, 204, 113, 0.3);
+            color: #5dff9e;
+        }
+        .badge-all {
+            background: rgba(155, 89, 182, 0.3);
+            color: #d4b0e0;
+        }
+
         .pending-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-top: 6px;
+            gap: 6px;
         }
         .pending-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 14px;
+            padding: 8px 12px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: var(--radius-sm);
-            border-left: 3px solid var(--red);
             gap: 10px;
             flex-wrap: wrap;
+            border-left: 3px solid var(--red);
+        }
+        .pending-item.resolved {
+            border-left-color: var(--green);
+            opacity: 0.8;
         }
         .pending-item .pending-text {
             flex: 1;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #eee;
         }
         .pending-item .pending-date {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #aaa;
         }
         .pending-item .pending-category {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             background: rgba(155, 89, 182, 0.3);
             padding: 2px 8px;
             border-radius: 10px;
             color: #d4b0e0;
         }
+        .pending-item .pending-status {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: rgba(231, 76, 60, 0.2);
+            color: #ff6b6b;
+        }
+        .status-resolved {
+            background: rgba(46, 204, 113, 0.2);
+            color: #5dff9e;
+        }
         .pending-item .btn-resolve {
             background: rgba(46, 204, 113, 0.3);
             border: 1px solid rgba(46, 204, 113, 0.5);
             color: #fff;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 12px;
             cursor: pointer;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
             transition: all var(--transition);
         }
@@ -1078,10 +1132,10 @@
             background: rgba(231, 76, 60, 0.2);
             border: 1px solid rgba(231, 76, 60, 0.3);
             color: #ccc;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 12px;
             cursor: pointer;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             transition: all var(--transition);
         }
         .pending-item .btn-remove-pending:hover {
@@ -1107,19 +1161,33 @@
             gap: 8px;
             margin-bottom: 4px;
         }
+        .pending-summary .stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
         .pending-summary .stat {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .pending-summary .stat .num {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #fff;
         }
         .pending-summary .stat .label {
             color: #aaa;
+        }
+        .stat-active .num {
+            color: #ff6b6b;
+        }
+        .stat-resolved .num {
+            color: #5dff9e;
+        }
+        .stat-total .num {
+            color: #d4b0e0;
         }
 
         .btn-pdf-pending-only {
@@ -1216,6 +1284,9 @@
                 flex-direction: column;
                 align-items: stretch;
                 gap: 6px;
+            }
+            .pending-summary .stats {
+                gap: 8px;
             }
         }
     </style>
@@ -1315,17 +1386,54 @@
 
             <section class="tab-content" id="tab-pendencias">
                 <div class="section-title"><span>⚠️</span> Pendencias Registradas</div>
+                
                 <div class="pending-summary" id="pendingSummary">
-                    <div class="stat">
-                        <span class="num" id="pendingCount">0</span>
-                        <span class="label">pendencias ativas</span>
+                    <div class="stats">
+                        <div class="stat stat-active">
+                            <span class="num" id="pendingActiveCount">0</span>
+                            <span class="label">ativas</span>
+                        </div>
+                        <div class="stat stat-resolved">
+                            <span class="num" id="pendingResolvedCount">0</span>
+                            <span class="label">resolvidas</span>
+                        </div>
+                        <div class="stat stat-total">
+                            <span class="num" id="pendingTotalCount">0</span>
+                            <span class="label">total</span>
+                        </div>
                     </div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <button class="btn-pdf-pending-only" id="btnPDFPending">Gerar Relatorio de Pendencias</button>
                         <button class="btn-small btn-pending" id="btnAddPendingManual">Nova Pendencia</button>
                     </div>
                 </div>
-                <div id="pendingContent"><p class="pending-empty">Nenhuma pendencia registrada.</p></div>
+
+                <!-- Pendências Ativas -->
+                <div class="pending-section">
+                    <div class="pending-section-title">
+                        <span>🔴 Pendências Ativas</span>
+                        <span class="badge badge-active" id="activeBadge">0</span>
+                    </div>
+                    <div id="pendingActiveContent"><p class="pending-empty">Nenhuma pendencia ativa.</p></div>
+                </div>
+
+                <!-- Pendências Resolvidas -->
+                <div class="pending-section">
+                    <div class="pending-section-title">
+                        <span>✅ Pendências Resolvidas</span>
+                        <span class="badge badge-resolved" id="resolvedBadge">0</span>
+                    </div>
+                    <div id="pendingResolvedContent"><p class="pending-empty">Nenhuma pendencia resolvida.</p></div>
+                </div>
+
+                <!-- Todas as Pendências -->
+                <div class="pending-section">
+                    <div class="pending-section-title">
+                        <span>📋 Todas as Pendências</span>
+                        <span class="badge badge-all" id="allBadge">0</span>
+                    </div>
+                    <div id="pendingAllContent"><p class="pending-empty">Nenhuma pendencia registrada.</p></div>
+                </div>
             </section>
 
             <section class="tab-content" id="tab-historico">
@@ -1430,8 +1538,7 @@
             initParticles();
             animateParticles();
 
-            // ====== CONFIGURAÇÕES - VERSÃO ESTÁVEL ======
-            // Mantemos a mesma chave para não perder dados
+            // ====== CONFIGURAÇÕES ======
             const STORAGE_KEY = 'horimetro_multigerador_v13';
             const OLD_STORAGE_KEYS = ['horimetro_multigerador_v12', 'horimetro_multigerador_v11', 'horimetro_multigerador_v10'];
 
@@ -1481,8 +1588,18 @@
             const $customTimeValue = document.getElementById('customTimeValue');
             const $customTimeUnit = document.getElementById('customTimeUnit');
             const $maintenanceGrid = document.getElementById('maintenanceGrid');
-            const $pendingContent = document.getElementById('pendingContent');
-            const $pendingCount = document.getElementById('pendingCount');
+            
+            // Novos elementos para pendências separadas
+            const $pendingActiveContent = document.getElementById('pendingActiveContent');
+            const $pendingResolvedContent = document.getElementById('pendingResolvedContent');
+            const $pendingAllContent = document.getElementById('pendingAllContent');
+            const $pendingActiveCount = document.getElementById('pendingActiveCount');
+            const $pendingResolvedCount = document.getElementById('pendingResolvedCount');
+            const $pendingTotalCount = document.getElementById('pendingTotalCount');
+            const $activeBadge = document.getElementById('activeBadge');
+            const $resolvedBadge = document.getElementById('resolvedBadge');
+            const $allBadge = document.getElementById('allBadge');
+            
             const $historyContent = document.getElementById('historyContent');
             const $btnClearHistory = document.getElementById('btnClearHistory');
             const $btnBackupData = document.getElementById('btnBackupData');
@@ -1505,7 +1622,7 @@
             let displayIntervalId = null;
             let maintUpdateIntervalId = null;
 
-            // ====== FUNÇÕES DE ESTADO COM MIGRAÇÃO ROBUSTA ======
+            // ====== FUNÇÕES DE ESTADO ======
             function saveState() {
                 try {
                     if (state.activeGeneratorId) {
@@ -1544,22 +1661,19 @@
                 }
             }
 
-            // ====== FUNÇÃO DE MIGRAÇÃO MELHORADA ======
             function migrateData() {
-                // Tenta carregar da chave atual primeiro
                 let raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     try {
                         const parsed = JSON.parse(raw);
                         if (parsed && parsed.generators && parsed.generators.length > 0) {
-                            return raw; // Dados válidos encontrados
+                            return raw;
                         }
                     } catch (e) {
                         console.warn('Dados da chave atual corrompidos, tentando migrar...');
                     }
                 }
 
-                // Tenta migrar das chaves antigas
                 for (const oldKey of OLD_STORAGE_KEYS) {
                     const oldData = localStorage.getItem(oldKey);
                     if (oldData) {
@@ -1567,9 +1681,7 @@
                             const parsed = JSON.parse(oldData);
                             if (parsed && parsed.generators && parsed.generators.length > 0) {
                                 console.log(`Dados migrados da chave: ${oldKey}`);
-                                // Salva na chave atual
                                 localStorage.setItem(STORAGE_KEY, oldData);
-                                // Remove a chave antiga para limpeza
                                 localStorage.removeItem(oldKey);
                                 return oldData;
                             }
@@ -1579,7 +1691,6 @@
                     }
                 }
 
-                // Tenta buscar qualquer chave que comece com 'horimetro_multigerador_v'
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key && key.startsWith('horimetro_multigerador_v') && key !== STORAGE_KEY) {
@@ -1598,18 +1709,15 @@
                     }
                 }
 
-                return null; // Nenhum dado válido encontrado
+                return null;
             }
 
             function loadState() {
                 try {
-                    // Primeiro tenta migrar dados de versões anteriores
                     const migratedData = migrateData();
-
                     let raw = migratedData || localStorage.getItem(STORAGE_KEY);
 
                     if (!raw) {
-                        // Nenhum dado encontrado, cria estado padrão
                         console.log('Nenhum dado encontrado, criando estado padrão...');
                         state.technicianName = '';
                         state.technicianCPF = '';
@@ -1623,16 +1731,15 @@
                             maintenanceItems: JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                             maintenanceHistory: [],
                             pendencies: [],
+                            resolvedPendencies: [],
                         }];
                         state.activeGeneratorId = state.generators[0].id;
                         saveState();
                         return;
                     }
 
-                    // Tenta parsear os dados
                     const parsed = JSON.parse(raw);
 
-                    // Valida se os dados estão completos
                     if (!parsed.generators || parsed.generators.length === 0) {
                         throw new Error('Dados inválidos: nenhum gerador encontrado');
                     }
@@ -1640,7 +1747,6 @@
                     state.technicianName = parsed.technicianName || '';
                     state.technicianCPF = parsed.technicianCPF || '';
                     state.generators = parsed.generators.map(gen => {
-                        // Garante que todos os campos necessários existam
                         return {
                             id: gen.id || 'gen_' + Date.now(),
                             name: gen.name || 'Gerador',
@@ -1655,27 +1761,26 @@
                                 }) : JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                             maintenanceHistory: Array.isArray(gen.maintenanceHistory) ? gen.maintenanceHistory : [],
                             pendencies: Array.isArray(gen.pendencies) ? gen.pendencies : [],
+                            resolvedPendencies: Array.isArray(gen.resolvedPendencies) ? gen.resolvedPendencies : [],
                         };
                     });
 
                     state.activeGeneratorId = parsed.activeGeneratorId || (state.generators[0] ? state.generators[0].id : null);
 
-                    // Se o activeGeneratorId não for válido, usa o primeiro
                     if (!state.generators.find(g => g.id === state.activeGeneratorId)) {
                         state.activeGeneratorId = state.generators[0] ? state.generators[0].id : null;
                     }
 
-                    // Salva o estado migrado
                     saveState();
 
-                    // Mostra mensagem de sucesso
                     const genCount = state.generators.length;
                     const pendCount = state.generators.reduce((sum, g) => sum + (g.pendencies ? g.pendencies.length : 0), 0);
-                    console.log(`Dados carregados: ${genCount} gerador(es), ${pendCount} pendência(s)`);
+                    const resolvedCount = state.generators.reduce((sum, g) => sum + (g.resolvedPendencies ? g.resolvedPendencies
+                        .length : 0), 0);
+                    console.log(`Dados carregados: ${genCount} gerador(es), ${pendCount} pendência(s), ${resolvedCount} resolvida(s)`);
 
                 } catch (e) {
                     console.error('Erro ao carregar estado, recriando...', e);
-                    // Em caso de erro, recria o estado padrão
                     state.technicianName = '';
                     state.technicianCPF = '';
                     state.generators = [{
@@ -1688,6 +1793,7 @@
                         maintenanceItems: JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                         maintenanceHistory: [],
                         pendencies: [],
+                        resolvedPendencies: [],
                     }];
                     state.activeGeneratorId = state.generators[0].id;
                     saveState();
@@ -1845,68 +1951,143 @@
                     openEditIntervalModal(b.dataset.id)));
             }
 
+            // ====== NOVA FUNÇÃO: ATUALIZAR PENDÊNCIAS SEPARADAS ======
             function updatePendingUI() {
                 const gen = getActiveGenerator();
-                if (!gen || gen.pendencies.length === 0) {
-                    $pendingContent.innerHTML = '<p class="pending-empty">Nenhuma pendencia registrada.</p>';
+                
+                // Contadores
+                let activeCount = 0;
+                let resolvedCount = 0;
+                let totalCount = 0;
+
+                if (gen) {
+                    activeCount = gen.pendencies ? gen.pendencies.length : 0;
+                    resolvedCount = gen.resolvedPendencies ? gen.resolvedPendencies.length : 0;
+                    totalCount = activeCount + resolvedCount;
+                }
+
+                // Atualiza badges e contadores
+                $pendingActiveCount.textContent = activeCount;
+                $pendingResolvedCount.textContent = resolvedCount;
+                $pendingTotalCount.textContent = totalCount;
+                $activeBadge.textContent = activeCount;
+                $resolvedBadge.textContent = resolvedCount;
+                $allBadge.textContent = totalCount;
+
+                // Atualiza badge da aba
+                if (activeCount > 0) {
+                    $pendingBadge.classList.add('show');
+                    $pendingBadge.textContent = activeCount;
+                } else {
                     $pendingBadge.classList.remove('show');
-                    $pendingCount.textContent = '0';
+                }
+
+                // Renderiza pendências ativas
+                renderPendingList($pendingActiveContent, gen ? gen.pendencies : [], 'active');
+                
+                // Renderiza pendências resolvidas
+                renderPendingList($pendingResolvedContent, gen ? gen.resolvedPendencies : [], 'resolved');
+                
+                // Renderiza todas as pendências
+                const allPendencies = [
+                    ...(gen ? gen.pendencies : []).map(p => ({ ...p, status: 'active' })),
+                    ...(gen ? gen.resolvedPendencies : []).map(p => ({ ...p, status: 'resolved' }))
+                ];
+                renderPendingList($pendingAllContent, allPendencies, 'all');
+            }
+
+            // ====== FUNÇÃO PARA RENDERIZAR LISTA DE PENDÊNCIAS ======
+            function renderPendingList(container, pendencies, type) {
+                if (!pendencies || pendencies.length === 0) {
+                    const msg = type === 'active' ? 'Nenhuma pendencia ativa.' :
+                               type === 'resolved' ? 'Nenhuma pendencia resolvida.' :
+                               'Nenhuma pendencia registrada.';
+                    container.innerHTML = `<p class="pending-empty">${msg}</p>`;
                     return;
                 }
 
-                const container = document.createElement('div');
-                container.className = 'pending-list';
+                const list = document.createElement('div');
+                list.className = 'pending-list';
 
-                const sorted = [...gen.pendencies].reverse();
+                // Ordena por data (mais recente primeiro)
+                const sorted = [...pendencies].reverse();
 
                 sorted.forEach((pend, index) => {
-                    const realIndex = gen.pendencies.length - 1 - index;
+                    const realIndex = pendencies.length - 1 - index;
                     const d = new Date(pend.dateISO);
                     const div = document.createElement('div');
-                    div.className = 'pending-item';
+                    div.className = `pending-item ${pend.status === 'resolved' ? 'resolved' : ''}`;
+                    
+                    const statusLabel = pend.status === 'resolved' ? 'Resolvida' : 'Ativa';
+                    const statusClass = pend.status === 'resolved' ? 'status-resolved' : 'status-active';
+                    
+                    // Verifica se é pendência com resolução (para o histórico)
+                    const isResolved = pend.status === 'resolved';
+                    
                     div.innerHTML = `
                         <span class="pending-text">${pend.description}</span>
                         <span class="pending-category">${pend.category || 'Geral'}</span>
                         <span class="pending-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
-                        <span style="font-size:0.7rem;color:#aaa;">${pend.technicianName || 'Tecnico'}</span>
-                        <div style="display:flex;gap:4px;">
-                            <button class="btn-resolve" data-index="${realIndex}">Resolver</button>
-                            <button class="btn-remove-pending" data-index="${realIndex}">X</button>
-                        </div>
+                        <span class="pending-status ${statusClass}">${statusLabel}</span>
+                        <span style="font-size:0.6rem;color:#aaa;">${pend.technicianName || 'Tecnico'}</span>
+                        ${!isResolved ? `
+                            <div style="display:flex;gap:4px;">
+                                <button class="btn-resolve" data-index="${realIndex}">Resolver</button>
+                                <button class="btn-remove-pending" data-index="${realIndex}">X</button>
+                            </div>
+                        ` : `
+                            <div style="display:flex;gap:4px;">
+                                <button class="btn-remove-pending" data-index="${realIndex}" style="background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.2);">Remover</button>
+                            </div>
+                        `}
                     `;
-                    container.appendChild(div);
+                    list.appendChild(div);
                 });
 
-                $pendingContent.innerHTML = '';
-                $pendingContent.appendChild(container);
+                container.innerHTML = '';
+                container.appendChild(list);
 
-                container.querySelectorAll('.btn-resolve').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const idx = parseInt(this.dataset.index);
-                        resolvePending(idx);
+                // Event listeners para botões
+                if (type === 'active') {
+                    list.querySelectorAll('.btn-resolve').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const idx = parseInt(this.dataset.index);
+                            resolvePending(idx);
+                        });
                     });
-                });
+                }
 
-                container.querySelectorAll('.btn-remove-pending').forEach(btn => {
+                list.querySelectorAll('.btn-remove-pending').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const idx = parseInt(this.dataset.index);
-                        if (confirm('Remover esta pendencia?')) {
-                            removePending(idx);
+                        const isResolved = pendencies[idx]?.status === 'resolved';
+                        if (confirm(`Remover esta pendencia ${isResolved ? 'resolvida' : ''}?`)) {
+                            removePending(idx, isResolved);
                         }
                     });
                 });
-
-                $pendingBadge.classList.add('show');
-                $pendingBadge.textContent = gen.pendencies.length;
-                $pendingCount.textContent = gen.pendencies.length;
             }
 
+            // ====== FUNÇÃO PARA RESOLVER PENDÊNCIA ======
             function resolvePending(index) {
                 const gen = getActiveGenerator();
                 if (!gen || !gen.pendencies[index]) return;
 
                 const pend = gen.pendencies[index];
                 if (confirm(`Confirmar resolucao da pendencia:\n"${pend.description}"`)) {
+                    // Move para resolvedPendencies
+                    const resolvedPend = {
+                        ...pend,
+                        status: 'resolved',
+                        resolvedAt: new Date().toISOString(),
+                        resolvedBy: state.technicianName || 'Tecnico',
+                    };
+                    
+                    if (!gen.resolvedPendencies) gen.resolvedPendencies = [];
+                    gen.resolvedPendencies.push(resolvedPend);
+                    gen.pendencies.splice(index, 1);
+                    
+                    // Registra no histórico
                     gen.maintenanceHistory.push({
                         id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
                         dateISO: new Date().toISOString(),
@@ -1919,7 +2100,6 @@
                         isPendingResolution: true,
                     });
 
-                    gen.pendencies.splice(index, 1);
                     saveState();
                     updateAllUI();
                     showToast('Pendencia resolvida e registrada no historico!', 'success');
@@ -1927,10 +2107,19 @@
                 }
             }
 
-            function removePending(index) {
+            // ====== FUNÇÃO PARA REMOVER PENDÊNCIA ======
+            function removePending(index, isResolved) {
                 const gen = getActiveGenerator();
-                if (!gen || !gen.pendencies[index]) return;
-                gen.pendencies.splice(index, 1);
+                if (!gen) return;
+
+                if (isResolved) {
+                    if (!gen.resolvedPendencies || !gen.resolvedPendencies[index]) return;
+                    gen.resolvedPendencies.splice(index, 1);
+                } else {
+                    if (!gen.pendencies || !gen.pendencies[index]) return;
+                    gen.pendencies.splice(index, 1);
+                }
+                
                 saveState();
                 updateAllUI();
                 showToast('Pendencia removida.', 'info');
@@ -1977,7 +2166,7 @@
                 updateGeneratorSelect();
             }
 
-            // ====== FUNÇÃO DE ESCAPE PARA PDF - REMOVE SÍMBOLOS ======
+            // ====== FUNÇÃO DE ESCAPE PARA PDF ======
             function cleanForPDF(text) {
                 if (!text) return '';
                 return text
@@ -2173,8 +2362,10 @@
                     generatorChassi: gen.chassi || '',
                     isUrgent: description.includes('[URGENTE]'),
                     isCritical: description.includes('[CRITICO]'),
+                    status: 'active',
                 };
 
+                if (!gen.pendencies) gen.pendencies = [];
                 gen.pendencies.push(pend);
                 saveState();
                 updateAllUI();
@@ -2264,8 +2455,18 @@
                 item.lastDoneAtHours = totalHours;
                 item.alerted = false;
 
-                const relatedPendencies = gen.pendencies.filter(p => p.itemId === itemId);
+                // Resolve pendências relacionadas automaticamente
+                const relatedPendencies = gen.pendencies ? gen.pendencies.filter(p => p.itemId === itemId) : [];
                 if (relatedPendencies.length > 0) {
+                    if (!gen.resolvedPendencies) gen.resolvedPendencies = [];
+                    relatedPendencies.forEach(p => {
+                        gen.resolvedPendencies.push({
+                            ...p,
+                            status: 'resolved',
+                            resolvedAt: dateISO,
+                            resolvedBy: state.technicianName || 'Tecnico',
+                        });
+                    });
                     gen.pendencies = gen.pendencies.filter(p => p.itemId !== itemId);
                     showToast(`${relatedPendencies.length} pendencia(s) relacionada(s) foram resolvidas automaticamente.`,
                         'success');
@@ -2364,6 +2565,7 @@
                         maintenanceItems: JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                         maintenanceHistory: [],
                         pendencies: [],
+                        resolvedPendencies: [],
                     };
                     state.generators.push(newGen);
                     if (!state.activeGeneratorId) state.activeGeneratorId = newGen.id;
@@ -2422,7 +2624,7 @@
                 };
             }
 
-            // ====== RELATÓRIO DE PENDÊNCIAS SEPARADO - SEM SÍMBOLOS ======
+            // ====== RELATÓRIO DE PENDÊNCIAS SEPARADO ======
             function generatePendingReport() {
                 const gen = getActiveGenerator();
                 if (!gen) {
@@ -2430,7 +2632,9 @@
                     return;
                 }
 
-                if (gen.pendencies.length === 0) {
+                const totalPend = (gen.pendencies ? gen.pendencies.length : 0) + (gen.resolvedPendencies ? gen.resolvedPendencies
+                    .length : 0);
+                if (totalPend === 0) {
                     showToast('Nao ha pendencias para este gerador.', 'info');
                     return;
                 }
@@ -2455,63 +2659,81 @@
                     doc.text(`CPF do Tecnico: ${clean(state.technicianCPF)}`, 14, 53);
                 }
                 doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 60);
-                doc.text(`Total de Pendencias: ${gen.pendencies.length}`, 14, 67);
+                doc.text(`Total de Pendencias: ${totalPend}`, 14, 67);
+                doc.text(`Ativas: ${gen.pendencies ? gen.pendencies.length : 0}`, 14, 74);
+                doc.text(`Resolvidas: ${gen.resolvedPendencies ? gen.resolvedPendencies.length : 0}`, 14, 81);
 
-                const categoryCount = {};
-                gen.pendencies.forEach(p => {
-                    const cat = p.category || 'Geral';
-                    categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-                });
+                let yPos = 89;
 
-                let yPos = 75;
-                doc.setFontSize(11);
-                doc.text('Resumo por Categoria:', 14, yPos);
-                yPos += 5;
+                // Pendências Ativas
+                if (gen.pendencies && gen.pendencies.length > 0) {
+                    doc.setFontSize(12);
+                    doc.setTextColor(200, 50, 50);
+                    doc.text('PENDENCIAS ATIVAS', 14, yPos);
+                    doc.setTextColor(0, 0, 0);
+                    yPos += 5;
 
-                const catRows = Object.entries(categoryCount).map(([cat, count]) => [clean(cat), count.toString()]);
-                doc.autoTable({
-                    startY: yPos,
-                    head: [['Categoria', 'Quantidade']],
-                    body: catRows,
-                    theme: 'grid',
-                    headStyles: { fillColor: [155, 89, 182] },
-                    styles: { fontSize: 8 },
-                });
+                    const activeRows = gen.pendencies.map(p => {
+                        const d = new Date(p.dateISO);
+                        let desc = clean(p.description);
+                        if (desc.length > 50) desc = desc.substring(0, 47) + '...';
+                        return [
+                            d.toLocaleDateString('pt-BR'),
+                            desc,
+                            clean(p.category || 'Geral'),
+                            clean(p.technicianName || 'Tecnico')
+                        ];
+                    });
 
-                yPos = doc.lastAutoTable.finalY + 8;
+                    doc.autoTable({
+                        startY: yPos,
+                        head: [
+                            ['Data', 'Descricao', 'Categoria', 'Registrado Por']
+                        ],
+                        body: activeRows,
+                        theme: 'grid',
+                        headStyles: { fillColor: [200, 50, 50] },
+                        styles: { fontSize: 7 },
+                        columnStyles: { 1: { cellWidth: 65 } },
+                    });
+                    yPos = doc.lastAutoTable.finalY + 8;
+                }
 
-                doc.setFontSize(14);
-                doc.text('Lista Detalhada de Pendencias', 14, yPos);
-                yPos += 5;
+                // Pendências Resolvidas
+                if (gen.resolvedPendencies && gen.resolvedPendencies.length > 0) {
+                    doc.setFontSize(12);
+                    doc.setTextColor(50, 200, 50);
+                    doc.text('PENDENCIAS RESOLVIDAS', 14, yPos);
+                    doc.setTextColor(0, 0, 0);
+                    yPos += 5;
 
-                const pendingRows = gen.pendencies.map(p => {
-                    const d = new Date(p.dateISO);
-                    let desc = clean(p.description);
-                    if (desc.length > 60) desc = desc.substring(0, 57) + '...';
-                    return [
-                        d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit',
-                            minute: '2-digit' }),
-                        desc,
-                        clean(p.category || 'Geral'),
-                        clean(p.technicianName || 'Tecnico')
-                    ];
-                });
+                    const resolvedRows = gen.resolvedPendencies.map(p => {
+                        const d = new Date(p.dateISO);
+                        let desc = clean(p.description);
+                        if (desc.length > 50) desc = desc.substring(0, 47) + '...';
+                        return [
+                            d.toLocaleDateString('pt-BR'),
+                            desc,
+                            clean(p.category || 'Geral'),
+                            clean(p.resolvedBy || p.technicianName || 'Tecnico')
+                        ];
+                    });
 
-                doc.autoTable({
-                    startY: yPos + 2,
-                    head: [
-                        ['Data', 'Descricao', 'Categoria', 'Registrado Por']
-                    ],
-                    body: pendingRows,
-                    theme: 'grid',
-                    headStyles: { fillColor: [200, 80, 0] },
-                    styles: { fontSize: 7 },
-                    columnStyles: {
-                        1: { cellWidth: 70 },
-                    },
-                });
+                    doc.autoTable({
+                        startY: yPos,
+                        head: [
+                            ['Data', 'Descricao', 'Categoria', 'Resolvido Por']
+                        ],
+                        body: resolvedRows,
+                        theme: 'grid',
+                        headStyles: { fillColor: [50, 200, 50] },
+                        styles: { fontSize: 7 },
+                        columnStyles: { 1: { cellWidth: 65 } },
+                    });
+                    yPos = doc.lastAutoTable.finalY + 8;
+                }
 
-                const finalY = doc.lastAutoTable.finalY + 20;
+                const finalY = yPos + 10;
                 doc.setFontSize(10);
                 doc.text('_________________________________________', 14, finalY);
                 doc.text('Assinatura do Tecnico Responsavel', 14, finalY + 6);
@@ -2521,7 +2743,7 @@
                 showToast('Relatorio de Pendencias gerado com sucesso!', 'success');
             }
 
-            // ====== RELATÓRIO COMPLETO - SEM SÍMBOLOS ======
+            // ====== RELATÓRIO COMPLETO ======
             function generateFullPDF() {
                 const gen = getActiveGenerator();
                 if (!gen) {
@@ -2553,34 +2775,43 @@
 
                 let startY = 82;
 
-                if (gen.pendencies.length > 0) {
+                // Seção de Pendências
+                const totalPend = (gen.pendencies ? gen.pendencies.length : 0) + (gen.resolvedPendencies ? gen.resolvedPendencies
+                    .length : 0);
+                if (totalPend > 0) {
                     doc.setFontSize(14);
-                    doc.text(`PENDENCIAS REGISTRADAS (${gen.pendencies.length})`, 14, startY);
+                    doc.text(`PENDENCIAS (${totalPend} total, ${gen.pendencies ? gen.pendencies.length : 0} ativas)`, 14, startY);
+                    startY += 5;
 
-                    const pendingRows = gen.pendencies.map(p => {
+                    const allPend = [
+                        ...(gen.pendencies || []).map(p => ({ ...p, status: 'Ativa' })),
+                        ...(gen.resolvedPendencies || []).map(p => ({ ...p, status: 'Resolvida' }))
+                    ];
+
+                    const pendingRows = allPend.map(p => {
                         const d = new Date(p.dateISO);
                         let desc = clean(p.description);
-                        if (desc.length > 50) desc = desc.substring(0, 47) + '...';
+                        if (desc.length > 40) desc = desc.substring(0, 37) + '...';
                         return [
                             d.toLocaleDateString('pt-BR'),
                             desc,
                             clean(p.category || 'Geral'),
-                            clean(p.technicianName || 'Tecnico')
+                            p.status,
+                            clean(p.status === 'Resolvida' ? (p.resolvedBy || p.technicianName || 'Tecnico') : (p
+                                .technicianName || 'Tecnico'))
                         ];
                     });
 
                     doc.autoTable({
-                        startY: startY + 5,
+                        startY: startY,
                         head: [
-                            ['Data', 'Descricao', 'Categoria', 'Registrado Por']
+                            ['Data', 'Descricao', 'Categoria', 'Status', 'Responsavel']
                         ],
                         body: pendingRows,
                         theme: 'grid',
-                        headStyles: { fillColor: [200, 80, 0] },
-                        styles: { fontSize: 7 },
-                        columnStyles: {
-                            1: { cellWidth: 65 },
-                        },
+                        headStyles: { fillColor: [155, 89, 182] },
+                        styles: { fontSize: 6 },
+                        columnStyles: { 1: { cellWidth: 55 } },
                     });
                     startY = doc.lastAutoTable.finalY + 8;
                 } else {
@@ -2589,6 +2820,7 @@
                     startY += 8;
                 }
 
+                // Seção de Manutenções Previstas
                 doc.setFontSize(14);
                 doc.text('MANUTENCOES PREVISTAS', 14, startY);
                 startY += 5;
@@ -2619,6 +2851,7 @@
 
                 let historyStartY = doc.lastAutoTable.finalY + 10;
 
+                // Seção de Histórico
                 if (gen.maintenanceHistory.length > 0) {
                     doc.setFontSize(14);
                     doc.text('HISTORICO DE MANUTENCOES', 14, historyStartY);
@@ -2703,9 +2936,10 @@
             function resetTimer() {
                 const gen = getActiveGenerator();
                 if (!gen) return;
-                if (gen.pendencies.length > 0) {
+                const activeCount = gen.pendencies ? gen.pendencies.length : 0;
+                if (activeCount > 0) {
                     if (!confirm(
-                            `Este gerador possui ${gen.pendencies.length} pendencia(s) nao resolvidas. Deseja continuar com o zeramento?`
+                            `Este gerador possui ${activeCount} pendencia(s) ativas nao resolvidas. Deseja continuar com o zeramento?`
                             )) return;
                 }
                 if (!confirm(`TEM CERTEZA que deseja zerar TODOS OS DADOS do gerador "${gen.name}"? Esta acao e irreversivel!`))
@@ -2718,6 +2952,7 @@
                     i.alerted = false; });
                 gen.maintenanceHistory = [];
                 gen.pendencies = [];
+                gen.resolvedPendencies = [];
                 saveState();
                 updateAllUI();
                 stopDisplayInterval();
@@ -2882,12 +3117,11 @@
                     checkAlerts(); }, 10000);
                 switchTab('horimetro');
 
-                updatePendingUI();
-
-                // Mostra contagem de dados carregados
                 const totalGens = state.generators.length;
                 const totalPends = state.generators.reduce((sum, g) => sum + (g.pendencies ? g.pendencies.length : 0), 0);
-                console.log(`Sistema inicializado: ${totalGens} gerador(es), ${totalPends} pendencia(s)`);
+                const totalResolved = state.generators.reduce((sum, g) => sum + (g.resolvedPendencies ? g.resolvedPendencies
+                    .length : 0), 0);
+                console.log(`Sistema inicializado: ${totalGens} gerador(es), ${totalPends} pendencia(s), ${totalResolved} resolvida(s)`);
             }
 
             window.addEventListener('beforeunload', () => {
