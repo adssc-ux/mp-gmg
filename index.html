@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js">
     </script>
     <style>
-        /* ===== CSS COMPLETO ===== */
+        /* ===== CSS COMPLETO (mesmo do código anterior) ===== */
         :root {
             --bg: rgba(10, 10, 18, 0.1);
             --surface: rgba(20, 20, 30, 0.1);
@@ -1027,7 +1027,7 @@
             }
         }
 
-        /* ===== NOVOS ESTILOS PARA PENDÊNCIAS ===== */
+        /* ===== ESTILOS PARA PENDÊNCIAS ===== */
         .pending-section {
             background: var(--surface2);
             backdrop-filter: blur(calc(var(--backdrop-blur) * 2));
@@ -1082,7 +1082,7 @@
         }
         .pending-item.resolved {
             border-left-color: var(--green);
-            opacity: 0.8;
+            opacity: 0.85;
         }
         .pending-item .pending-text {
             flex: 1;
@@ -1127,6 +1127,20 @@
         }
         .pending-item .btn-resolve:hover {
             background: rgba(46, 204, 113, 0.5);
+        }
+        .pending-item .btn-edit-pending {
+            background: rgba(52, 152, 219, 0.3);
+            border: 1px solid rgba(52, 152, 219, 0.5);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 600;
+            transition: all var(--transition);
+        }
+        .pending-item .btn-edit-pending:hover {
+            background: rgba(52, 152, 219, 0.5);
         }
         .pending-item .btn-remove-pending {
             background: rgba(231, 76, 60, 0.2);
@@ -1539,8 +1553,10 @@
             animateParticles();
 
             // ====== CONFIGURAÇÕES ======
-            const STORAGE_KEY = 'horimetro_multigerador_v13';
-            const OLD_STORAGE_KEYS = ['horimetro_multigerador_v12', 'horimetro_multigerador_v11', 'horimetro_multigerador_v10'];
+            const STORAGE_KEY = 'horimetro_multigerador_v14';
+            const OLD_STORAGE_KEYS = ['horimetro_multigerador_v13', 'horimetro_multigerador_v12', 'horimetro_multigerador_v11',
+                'horimetro_multigerador_v10'
+            ];
 
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Oleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
@@ -1589,7 +1605,6 @@
             const $customTimeUnit = document.getElementById('customTimeUnit');
             const $maintenanceGrid = document.getElementById('maintenanceGrid');
             
-            // Novos elementos para pendências separadas
             const $pendingActiveContent = document.getElementById('pendingActiveContent');
             const $pendingResolvedContent = document.getElementById('pendingResolvedContent');
             const $pendingAllContent = document.getElementById('pendingAllContent');
@@ -1951,52 +1966,225 @@
                     openEditIntervalModal(b.dataset.id)));
             }
 
-            // ====== NOVA FUNÇÃO: ATUALIZAR PENDÊNCIAS SEPARADAS ======
-            function updatePendingUI() {
+            // ====== FUNÇÃO PARA ABRIR MODAL DE EDIÇÃO DE PENDÊNCIA ======
+            function openEditPendingModal(index, isResolved) {
                 const gen = getActiveGenerator();
-                
-                // Contadores
-                let activeCount = 0;
-                let resolvedCount = 0;
-                let totalCount = 0;
+                if (!gen) return;
 
-                if (gen) {
-                    activeCount = gen.pendencies ? gen.pendencies.length : 0;
-                    resolvedCount = gen.resolvedPendencies ? gen.resolvedPendencies.length : 0;
-                    totalCount = activeCount + resolvedCount;
-                }
+                const pend = isResolved ? gen.resolvedPendencies[index] : gen.pendencies[index];
+                if (!pend) return;
 
-                // Atualiza badges e contadores
-                $pendingActiveCount.textContent = activeCount;
-                $pendingResolvedCount.textContent = resolvedCount;
-                $pendingTotalCount.textContent = totalCount;
-                $activeBadge.textContent = activeCount;
-                $resolvedBadge.textContent = resolvedCount;
-                $allBadge.textContent = totalCount;
+                const now = new Date();
+                const dateStr = pend.dateISO ? new Date(pend.dateISO).toISOString().split('T')[0] : now.toISOString().split(
+                'T')[0];
+                const timeStr = pend.dateISO ? new Date(pend.dateISO).toTimeString().split(' ')[0].substring(0, 5) : now
+                    .toTimeString().split(' ')[0].substring(0, 5);
 
-                // Atualiza badge da aba
-                if (activeCount > 0) {
-                    $pendingBadge.classList.add('show');
-                    $pendingBadge.textContent = activeCount;
-                } else {
-                    $pendingBadge.classList.remove('show');
-                }
+                let categoryOptions = PENDING_CATEGORIES.map(cat =>
+                    `<option value="${cat}" ${cat === pend.category ? 'selected' : ''}>${cat}</option>`
+                ).join('');
 
-                // Renderiza pendências ativas
-                renderPendingList($pendingActiveContent, gen ? gen.pendencies : [], 'active');
-                
-                // Renderiza pendências resolvidas
-                renderPendingList($pendingResolvedContent, gen ? gen.resolvedPendencies : [], 'resolved');
-                
-                // Renderiza todas as pendências
-                const allPendencies = [
-                    ...(gen ? gen.pendencies : []).map(p => ({ ...p, status: 'active' })),
-                    ...(gen ? gen.resolvedPendencies : []).map(p => ({ ...p, status: 'resolved' }))
-                ];
-                renderPendingList($pendingAllContent, allPendencies, 'all');
+                $modalOverlay.innerHTML = `
+                    <div class="modal">
+                        <h2>✏️ Editar Pendencia</h2>
+                        <p style="color:#ddd; margin-bottom:12px;">
+                            <strong>${isResolved ? 'Pendencia Resolvida' : 'Pendencia Ativa'}</strong>
+                        </p>
+                        <div class="form-group">
+                            <label>Descricao da Pendencia</label>
+                            <textarea id="inputEditPendingDesc" style="min-height:80px;">${pend.description || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="inputEditPendingCategory">
+                                <option value="">Selecione uma categoria...</option>
+                                ${categoryOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data do Registro</label>
+                            <input type="date" class="modal-date-input" id="inputEditPendingDate" value="${dateStr}">
+                        </div>
+                        <div class="form-group">
+                            <label>Hora do Registro</label>
+                            <input type="time" class="modal-date-input" id="inputEditPendingTime" value="${timeStr}">
+                        </div>
+                        ${isResolved ? `
+                            <div class="form-group">
+                                <label>Data da Conclusao</label>
+                                <input type="date" class="modal-date-input" id="inputEditResolvedDate" value="${pend.resolvedAt ? new Date(pend.resolvedAt).toISOString().split('T')[0] : dateStr}">
+                            </div>
+                            <div class="form-group">
+                                <label>Hora da Conclusao</label>
+                                <input type="time" class="modal-date-input" id="inputEditResolvedTime" value="${pend.resolvedAt ? new Date(pend.resolvedAt).toTimeString().split(' ')[0].substring(0, 5) : timeStr}">
+                            </div>
+                            <div class="form-group">
+                                <label>Resolvido Por</label>
+                                <input type="text" id="inputEditResolvedBy" value="${pend.resolvedBy || ''}" placeholder="Nome do responsavel pela resolucao">
+                            </div>
+                        ` : `
+                            <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
+                                    <input type="checkbox" id="inputEditPendingUrgent" ${pend.isUrgent ? 'checked' : ''} style="width:auto;"> Urgente
+                                </label>
+                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
+                                    <input type="checkbox" id="inputEditPendingCritical" ${pend.isCritical ? 'checked' : ''} style="width:auto;"> Critico
+                                </label>
+                            </div>
+                        `}
+                        <div class="modal-date-hint">Altere os dados da pendencia conforme necessario.</div>
+                        <div class="modal-buttons">
+                            <button class="btn-cancel" id="modalCancel">Cancelar</button>
+                            <button class="btn-confirm" id="modalConfirmEdit">Salvar Alteracoes</button>
+                        </div>
+                    </div>`;
+                $modalOverlay.style.display = 'flex';
+                document.getElementById('modalCancel').onclick = closeModal;
+                document.getElementById('modalConfirmEdit').onclick = () => {
+                    const description = document.getElementById('inputEditPendingDesc').value.trim();
+                    const category = document.getElementById('inputEditPendingCategory').value;
+                    const dateValue = document.getElementById('inputEditPendingDate').value;
+                    const timeValue = document.getElementById('inputEditPendingTime').value || '00:00';
+
+                    if (!description) {
+                        showToast('Descreva a pendencia.', 'warning');
+                        return;
+                    }
+                    if (!dateValue) {
+                        showToast('Selecione uma data.', 'warning');
+                        return;
+                    }
+
+                    const newDateTime = new Date(`${dateValue}T${timeValue}:00`);
+
+                    // Atualiza pendência
+                    pend.description = description;
+                    pend.category = category || 'Geral';
+                    pend.dateISO = newDateTime.toISOString();
+
+                    if (isResolved) {
+                        const resolvedDate = document.getElementById('inputEditResolvedDate').value;
+                        const resolvedTime = document.getElementById('inputEditResolvedTime').value || '00:00';
+                        if (resolvedDate) {
+                            pend.resolvedAt = new Date(`${resolvedDate}T${resolvedTime}:00`).toISOString();
+                        }
+                        const resolvedBy = document.getElementById('inputEditResolvedBy').value.trim();
+                        if (resolvedBy) pend.resolvedBy = resolvedBy;
+                    } else {
+                        const isUrgent = document.getElementById('inputEditPendingUrgent').checked;
+                        const isCritical = document.getElementById('inputEditPendingCritical').checked;
+                        pend.isUrgent = isUrgent;
+                        pend.isCritical = isCritical;
+                    }
+
+                    saveState();
+                    updateAllUI();
+                    closeModal();
+                    showToast('Pendencia atualizada com sucesso!', 'success');
+                };
+                $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
             }
 
-            // ====== FUNÇÃO PARA RENDERIZAR LISTA DE PENDÊNCIAS ======
+            // ====== FUNÇÃO PARA RESOLVER PENDÊNCIA COM DATA E HORA ======
+            function openResolvePendingModal(index) {
+                const gen = getActiveGenerator();
+                if (!gen || !gen.pendencies[index]) return;
+
+                const pend = gen.pendencies[index];
+                const now = new Date();
+                const todayStr = now.toISOString().split('T')[0];
+                const nowTimeStr = now.toTimeString().split(' ')[0].substring(0, 5);
+
+                $modalOverlay.innerHTML = `
+                    <div class="modal">
+                        <h2>✅ Resolver Pendencia</h2>
+                        <p style="color:#ddd; margin-bottom:12px;">
+                            <strong>${pend.description}</strong>
+                        </p>
+                        <div class="form-group">
+                            <label>Data da Conclusao</label>
+                            <input type="date" class="modal-date-input" id="inputResolveDate" value="${todayStr}">
+                        </div>
+                        <div class="form-group">
+                            <label>Hora da Conclusao</label>
+                            <input type="time" class="modal-date-input" id="inputResolveTime" value="${nowTimeStr}">
+                        </div>
+                        <div class="form-group">
+                            <label>Resolvido Por</label>
+                            <input type="text" class="modal-date-input" id="inputResolvedBy" value="${state.technicianName || 'Tecnico'}" placeholder="Nome do responsavel">
+                        </div>
+                        <div class="form-group">
+                            <label>Observacoes (opcional)</label>
+                            <textarea id="inputResolveObs" placeholder="Observacoes sobre a resolucao..." style="min-height:60px;"></textarea>
+                        </div>
+                        <div class="modal-date-hint">A data e hora da conclusao serao registradas no historico.</div>
+                        <div class="modal-buttons">
+                            <button class="btn-cancel" id="modalCancel">Cancelar</button>
+                            <button class="btn-confirm" id="modalConfirmResolve">Confirmar Resolucao</button>
+                        </div>
+                    </div>`;
+                $modalOverlay.style.display = 'flex';
+                document.getElementById('modalCancel').onclick = closeModal;
+                document.getElementById('modalConfirmResolve').onclick = () => {
+                    const dateValue = document.getElementById('inputResolveDate').value;
+                    const timeValue = document.getElementById('inputResolveTime').value || '00:00';
+                    const resolvedBy = document.getElementById('inputResolvedBy').value.trim() || state.technicianName ||
+                        'Tecnico';
+                    const obs = document.getElementById('inputResolveObs').value.trim();
+
+                    if (!dateValue) {
+                        showToast('Selecione uma data.', 'warning');
+                        return;
+                    }
+
+                    const resolvedAt = new Date(`${dateValue}T${timeValue}:00`).toISOString();
+                    resolvePendingWithDate(index, resolvedAt, resolvedBy, obs);
+                    closeModal();
+                };
+                $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
+            }
+
+            function resolvePendingWithDate(index, resolvedAt, resolvedBy, obs) {
+                const gen = getActiveGenerator();
+                if (!gen || !gen.pendencies[index]) return;
+
+                const pend = gen.pendencies[index];
+                
+                const resolvedPend = {
+                    ...pend,
+                    status: 'resolved',
+                    resolvedAt: resolvedAt || new Date().toISOString(),
+                    resolvedBy: resolvedBy || state.technicianName || 'Tecnico',
+                    resolutionObs: obs || '',
+                };
+                
+                if (!gen.resolvedPendencies) gen.resolvedPendencies = [];
+                gen.resolvedPendencies.push(resolvedPend);
+                gen.pendencies.splice(index, 1);
+                
+                const desc = pend.description;
+                gen.maintenanceHistory.push({
+                    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+                    dateISO: resolvedAt || new Date().toISOString(),
+                    itemName: `Pendencia Resolvida: ${desc}`,
+                    hoursAtMaintenance: getTotalHours(),
+                    technicianName: resolvedBy || state.technicianName || 'Tecnico',
+                    technicianCPF: state.technicianCPF || '',
+                    generatorName: gen.name,
+                    generatorChassi: gen.chassi || '',
+                    isPendingResolution: true,
+                    resolutionObs: obs || '',
+                });
+
+                saveState();
+                updateAllUI();
+                const d = new Date(resolvedAt);
+                showToast(`Pendencia resolvida em ${d.toLocaleDateString('pt-BR')} as ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}!`,
+                    'success');
+                playBeep();
+            }
+
+            // ====== FUNÇÃO PARA RENDERIZAR LISTA DE PENDÊNCIAS COM EDIÇÃO ======
             function renderPendingList(container, pendencies, type) {
                 if (!pendencies || pendencies.length === 0) {
                     const msg = type === 'active' ? 'Nenhuma pendencia ativa.' :
@@ -2009,7 +2197,6 @@
                 const list = document.createElement('div');
                 list.className = 'pending-list';
 
-                // Ordena por data (mais recente primeiro)
                 const sorted = [...pendencies].reverse();
 
                 sorted.forEach((pend, index) => {
@@ -2021,8 +2208,25 @@
                     const statusLabel = pend.status === 'resolved' ? 'Resolvida' : 'Ativa';
                     const statusClass = pend.status === 'resolved' ? 'status-resolved' : 'status-active';
                     
-                    // Verifica se é pendência com resolução (para o histórico)
                     const isResolved = pend.status === 'resolved';
+                    
+                    let actionsHtml = '';
+                    if (!isResolved) {
+                        actionsHtml = `
+                            <button class="btn-resolve" data-index="${realIndex}">Resolver</button>
+                            <button class="btn-edit-pending" data-index="${realIndex}" data-resolved="false">Editar</button>
+                            <button class="btn-remove-pending" data-index="${realIndex}" data-resolved="false">X</button>
+                        `;
+                    } else {
+                        const resolvedDate = pend.resolvedAt ? new Date(pend.resolvedAt) : null;
+                        const resolvedStr = resolvedDate ? 
+                            `Resolvido: ${resolvedDate.toLocaleDateString('pt-BR')} ${resolvedDate.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}` : '';
+                        actionsHtml = `
+                            <span style="font-size:0.55rem;color:#5dff9e;">${resolvedStr}</span>
+                            <button class="btn-edit-pending" data-index="${realIndex}" data-resolved="true">Editar</button>
+                            <button class="btn-remove-pending" data-index="${realIndex}" data-resolved="true">X</button>
+                        `;
+                    }
                     
                     div.innerHTML = `
                         <span class="pending-text">${pend.description}</span>
@@ -2030,16 +2234,9 @@
                         <span class="pending-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
                         <span class="pending-status ${statusClass}">${statusLabel}</span>
                         <span style="font-size:0.6rem;color:#aaa;">${pend.technicianName || 'Tecnico'}</span>
-                        ${!isResolved ? `
-                            <div style="display:flex;gap:4px;">
-                                <button class="btn-resolve" data-index="${realIndex}">Resolver</button>
-                                <button class="btn-remove-pending" data-index="${realIndex}">X</button>
-                            </div>
-                        ` : `
-                            <div style="display:flex;gap:4px;">
-                                <button class="btn-remove-pending" data-index="${realIndex}" style="background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.2);">Remover</button>
-                            </div>
-                        `}
+                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                            ${actionsHtml}
+                        </div>
                     `;
                     list.appendChild(div);
                 });
@@ -2047,20 +2244,26 @@
                 container.innerHTML = '';
                 container.appendChild(list);
 
-                // Event listeners para botões
-                if (type === 'active') {
-                    list.querySelectorAll('.btn-resolve').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const idx = parseInt(this.dataset.index);
-                            resolvePending(idx);
-                        });
+                // Event listeners
+                list.querySelectorAll('.btn-resolve').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.index);
+                        openResolvePendingModal(idx);
                     });
-                }
+                });
+
+                list.querySelectorAll('.btn-edit-pending').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.index);
+                        const isResolved = this.dataset.resolved === 'true';
+                        openEditPendingModal(idx, isResolved);
+                    });
+                });
 
                 list.querySelectorAll('.btn-remove-pending').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const idx = parseInt(this.dataset.index);
-                        const isResolved = pendencies[idx]?.status === 'resolved';
+                        const isResolved = this.dataset.resolved === 'true';
                         if (confirm(`Remover esta pendencia ${isResolved ? 'resolvida' : ''}?`)) {
                             removePending(idx, isResolved);
                         }
@@ -2068,46 +2271,6 @@
                 });
             }
 
-            // ====== FUNÇÃO PARA RESOLVER PENDÊNCIA ======
-            function resolvePending(index) {
-                const gen = getActiveGenerator();
-                if (!gen || !gen.pendencies[index]) return;
-
-                const pend = gen.pendencies[index];
-                if (confirm(`Confirmar resolucao da pendencia:\n"${pend.description}"`)) {
-                    // Move para resolvedPendencies
-                    const resolvedPend = {
-                        ...pend,
-                        status: 'resolved',
-                        resolvedAt: new Date().toISOString(),
-                        resolvedBy: state.technicianName || 'Tecnico',
-                    };
-                    
-                    if (!gen.resolvedPendencies) gen.resolvedPendencies = [];
-                    gen.resolvedPendencies.push(resolvedPend);
-                    gen.pendencies.splice(index, 1);
-                    
-                    // Registra no histórico
-                    gen.maintenanceHistory.push({
-                        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
-                        dateISO: new Date().toISOString(),
-                        itemName: `Pendencia Resolvida: ${pend.description}`,
-                        hoursAtMaintenance: getTotalHours(),
-                        technicianName: state.technicianName || 'Tecnico',
-                        technicianCPF: state.technicianCPF || '',
-                        generatorName: gen.name,
-                        generatorChassi: gen.chassi || '',
-                        isPendingResolution: true,
-                    });
-
-                    saveState();
-                    updateAllUI();
-                    showToast('Pendencia resolvida e registrada no historico!', 'success');
-                    playBeep();
-                }
-            }
-
-            // ====== FUNÇÃO PARA REMOVER PENDÊNCIA ======
             function removePending(index, isResolved) {
                 const gen = getActiveGenerator();
                 if (!gen) return;
@@ -2125,6 +2288,43 @@
                 showToast('Pendencia removida.', 'info');
             }
 
+            function updatePendingUI() {
+                const gen = getActiveGenerator();
+                
+                let activeCount = 0;
+                let resolvedCount = 0;
+                let totalCount = 0;
+
+                if (gen) {
+                    activeCount = gen.pendencies ? gen.pendencies.length : 0;
+                    resolvedCount = gen.resolvedPendencies ? gen.resolvedPendencies.length : 0;
+                    totalCount = activeCount + resolvedCount;
+                }
+
+                $pendingActiveCount.textContent = activeCount;
+                $pendingResolvedCount.textContent = resolvedCount;
+                $pendingTotalCount.textContent = totalCount;
+                $activeBadge.textContent = activeCount;
+                $resolvedBadge.textContent = resolvedCount;
+                $allBadge.textContent = totalCount;
+
+                if (activeCount > 0) {
+                    $pendingBadge.classList.add('show');
+                    $pendingBadge.textContent = activeCount;
+                } else {
+                    $pendingBadge.classList.remove('show');
+                }
+
+                renderPendingList($pendingActiveContent, gen ? gen.pendencies : [], 'active');
+                renderPendingList($pendingResolvedContent, gen ? gen.resolvedPendencies : [], 'resolved');
+                
+                const allPendencies = [
+                    ...(gen ? gen.pendencies : []).map(p => ({ ...p, status: 'active' })),
+                    ...(gen ? gen.resolvedPendencies : []).map(p => ({ ...p, status: 'resolved' }))
+                ];
+                renderPendingList($pendingAllContent, allPendencies, 'all');
+            }
+
             function updateHistoryUI() {
                 const gen = getActiveGenerator();
                 if (!gen || gen.maintenanceHistory.length === 0) {
@@ -2140,9 +2340,10 @@
                         const li = document.createElement('li');
                         li.className = 'history-item';
                         const isPending = entry.isPending || entry.isPendingResolution || false;
+                        const obsText = entry.resolutionObs ? ` (${entry.resolutionObs})` : '';
                         li.innerHTML = `
                             <span class="h-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
-                            <span class="h-item" style="${isPending ? 'color:#ff9800;' : ''}">${isPending ? '' : ''}${entry.itemName}</span>
+                            <span class="h-item" style="${isPending ? 'color:#ff9800;' : ''}">${isPending ? '' : ''}${entry.itemName}${obsText}</span>
                             <span class="h-hours">${entry.hoursAtMaintenance.toFixed(1)} h</span>
                             <span class="h-tech">${entry.technicianName || 'Tecnico'}</span>
                         `;
@@ -2186,6 +2387,7 @@
 
                 const now = new Date();
                 const todayStr = now.toISOString().split('T')[0];
+                const nowTimeStr = now.toTimeString().split(' ')[0].substring(0, 5);
 
                 let categoryOptions = PENDING_CATEGORIES.map(cat =>
                     `<option value="${cat}">${cat}</option>`
@@ -2212,6 +2414,10 @@
                             <label>Data do Registro</label>
                             <input type="date" class="modal-date-input" id="inputPendingDate" value="${todayStr}">
                         </div>
+                        <div class="form-group">
+                            <label>Hora do Registro</label>
+                            <input type="time" class="modal-date-input" id="inputPendingTime" value="${nowTimeStr}">
+                        </div>
                         <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
                                 <input type="checkbox" id="inputPendingUrgent" style="width:auto;"> Urgente
@@ -2220,7 +2426,7 @@
                                 <input type="checkbox" id="inputPendingCritical" style="width:auto;"> Critico
                             </label>
                         </div>
-                        <div class="modal-date-hint">A pendencia sera registrada e exibida na lista de pendencias.</div>
+                        <div class="modal-date-hint">A data/hora de registro da pendencia.</div>
                         <div class="modal-buttons">
                             <button class="btn-cancel" id="modalCancel">Cancelar</button>
                             <button class="btn-purple" id="modalConfirmPending">Registrar Pendencia</button>
@@ -2232,6 +2438,7 @@
                     const description = document.getElementById('inputPendingDesc').value.trim();
                     const category = document.getElementById('inputPendingCategory').value;
                     const dateValue = document.getElementById('inputPendingDate').value;
+                    const timeValue = document.getElementById('inputPendingTime').value || '00:00';
                     const isUrgent = document.getElementById('inputPendingUrgent').checked;
                     const isCritical = document.getElementById('inputPendingCritical').checked;
 
@@ -2253,7 +2460,7 @@
                         finalDesc = '[CRITICO] ' + description;
                     }
 
-                    const customDateTime = new Date(`${dateValue}T12:00:00`);
+                    const customDateTime = new Date(`${dateValue}T${timeValue}:00`);
                     registerPending(itemId, finalDesc, customDateTime.toISOString(), category || 'Geral');
                     closeModal();
                 };
@@ -2269,6 +2476,7 @@
 
                 const now = new Date();
                 const todayStr = now.toISOString().split('T')[0];
+                const nowTimeStr = now.toTimeString().split(' ')[0].substring(0, 5);
 
                 let categoryOptions = PENDING_CATEGORIES.map(cat =>
                     `<option value="${cat}">${cat}</option>`
@@ -2295,6 +2503,10 @@
                             <label>Data do Registro</label>
                             <input type="date" class="modal-date-input" id="inputPendingDate" value="${todayStr}">
                         </div>
+                        <div class="form-group">
+                            <label>Hora do Registro</label>
+                            <input type="time" class="modal-date-input" id="inputPendingTime" value="${nowTimeStr}">
+                        </div>
                         <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
                                 <input type="checkbox" id="inputPendingUrgent" style="width:auto;"> Urgente
@@ -2303,7 +2515,7 @@
                                 <input type="checkbox" id="inputPendingCritical" style="width:auto;"> Critico
                             </label>
                         </div>
-                        <div class="modal-date-hint">A pendencia sera registrada e exibida na lista de pendencias.</div>
+                        <div class="modal-date-hint">A data/hora de registro da pendencia.</div>
                         <div class="modal-buttons">
                             <button class="btn-cancel" id="modalCancel">Cancelar</button>
                             <button class="btn-purple" id="modalConfirmPending">Registrar Pendencia</button>
@@ -2315,6 +2527,7 @@
                     const description = document.getElementById('inputPendingDesc').value.trim();
                     const category = document.getElementById('inputPendingCategory').value;
                     const dateValue = document.getElementById('inputPendingDate').value;
+                    const timeValue = document.getElementById('inputPendingTime').value || '00:00';
                     const isUrgent = document.getElementById('inputPendingUrgent').checked;
                     const isCritical = document.getElementById('inputPendingCritical').checked;
 
@@ -2336,7 +2549,7 @@
                         finalDesc = '[CRITICO] ' + description;
                     }
 
-                    const customDateTime = new Date(`${dateValue}T12:00:00`);
+                    const customDateTime = new Date(`${dateValue}T${timeValue}:00`);
                     registerPending(null, finalDesc, customDateTime.toISOString(), category || 'Geral');
                     closeModal();
                 };
@@ -2370,7 +2583,7 @@
                 saveState();
                 updateAllUI();
                 const d = new Date(dateISO || new Date().toISOString());
-                showToast(`Pendencia registrada em ${d.toLocaleDateString('pt-BR')}: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
+                showToast(`Pendencia registrada em ${d.toLocaleDateString('pt-BR')} as ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
                     'warning');
                 playBeep();
 
@@ -2455,16 +2668,18 @@
                 item.lastDoneAtHours = totalHours;
                 item.alerted = false;
 
-                // Resolve pendências relacionadas automaticamente
                 const relatedPendencies = gen.pendencies ? gen.pendencies.filter(p => p.itemId === itemId) : [];
                 if (relatedPendencies.length > 0) {
                     if (!gen.resolvedPendencies) gen.resolvedPendencies = [];
+                    const now = new Date();
+                    const resolvedAt = now.toISOString();
                     relatedPendencies.forEach(p => {
                         gen.resolvedPendencies.push({
                             ...p,
                             status: 'resolved',
-                            resolvedAt: dateISO,
+                            resolvedAt: resolvedAt,
                             resolvedBy: state.technicianName || 'Tecnico',
+                            resolutionObs: 'Resolvida automaticamente pela manutencao',
                         });
                     });
                     gen.pendencies = gen.pendencies.filter(p => p.itemId !== itemId);
@@ -2624,7 +2839,7 @@
                 };
             }
 
-            // ====== RELATÓRIO DE PENDÊNCIAS SEPARADO ======
+            // ====== RELATÓRIO DE PENDÊNCIAS ======
             function generatePendingReport() {
                 const gen = getActiveGenerator();
                 if (!gen) {
@@ -2678,7 +2893,8 @@
                         let desc = clean(p.description);
                         if (desc.length > 50) desc = desc.substring(0, 47) + '...';
                         return [
-                            d.toLocaleDateString('pt-BR'),
+                            d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit',
+                                minute: '2-digit' }),
                             desc,
                             clean(p.category || 'Geral'),
                             clean(p.technicianName || 'Tecnico')
@@ -2688,13 +2904,13 @@
                     doc.autoTable({
                         startY: yPos,
                         head: [
-                            ['Data', 'Descricao', 'Categoria', 'Registrado Por']
+                            ['Data/Hora', 'Descricao', 'Categoria', 'Registrado Por']
                         ],
                         body: activeRows,
                         theme: 'grid',
                         headStyles: { fillColor: [200, 50, 50] },
                         styles: { fontSize: 7 },
-                        columnStyles: { 1: { cellWidth: 65 } },
+                        columnStyles: { 1: { cellWidth: 60 } },
                     });
                     yPos = doc.lastAutoTable.finalY + 8;
                 }
@@ -2709,12 +2925,16 @@
 
                     const resolvedRows = gen.resolvedPendencies.map(p => {
                         const d = new Date(p.dateISO);
+                        const rd = p.resolvedAt ? new Date(p.resolvedAt) : null;
                         let desc = clean(p.description);
-                        if (desc.length > 50) desc = desc.substring(0, 47) + '...';
+                        if (desc.length > 40) desc = desc.substring(0, 37) + '...';
                         return [
-                            d.toLocaleDateString('pt-BR'),
+                            d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit',
+                                minute: '2-digit' }),
                             desc,
                             clean(p.category || 'Geral'),
+                            rd ? rd.toLocaleDateString('pt-BR') + ' ' + rd.toLocaleTimeString('pt-BR', { hour: '2-digit',
+                                minute: '2-digit' }) : '-',
                             clean(p.resolvedBy || p.technicianName || 'Tecnico')
                         ];
                     });
@@ -2722,13 +2942,13 @@
                     doc.autoTable({
                         startY: yPos,
                         head: [
-                            ['Data', 'Descricao', 'Categoria', 'Resolvido Por']
+                            ['Registrado em', 'Descricao', 'Categoria', 'Concluido em', 'Resolvido Por']
                         ],
                         body: resolvedRows,
                         theme: 'grid',
                         headStyles: { fillColor: [50, 200, 50] },
-                        styles: { fontSize: 7 },
-                        columnStyles: { 1: { cellWidth: 65 } },
+                        styles: { fontSize: 6 },
+                        columnStyles: { 1: { cellWidth: 50 } },
                     });
                     yPos = doc.lastAutoTable.finalY + 8;
                 }
@@ -2790,13 +3010,15 @@
 
                     const pendingRows = allPend.map(p => {
                         const d = new Date(p.dateISO);
+                        const rd = p.resolvedAt ? new Date(p.resolvedAt) : null;
                         let desc = clean(p.description);
-                        if (desc.length > 40) desc = desc.substring(0, 37) + '...';
+                        if (desc.length > 35) desc = desc.substring(0, 32) + '...';
                         return [
                             d.toLocaleDateString('pt-BR'),
                             desc,
                             clean(p.category || 'Geral'),
                             p.status,
+                            p.status === 'Resolvida' ? (rd ? rd.toLocaleDateString('pt-BR') : '-') : '-',
                             clean(p.status === 'Resolvida' ? (p.resolvedBy || p.technicianName || 'Tecnico') : (p
                                 .technicianName || 'Tecnico'))
                         ];
@@ -2805,13 +3027,13 @@
                     doc.autoTable({
                         startY: startY,
                         head: [
-                            ['Data', 'Descricao', 'Categoria', 'Status', 'Responsavel']
+                            ['Data', 'Descricao', 'Categoria', 'Status', 'Concluido', 'Responsavel']
                         ],
                         body: pendingRows,
                         theme: 'grid',
                         headStyles: { fillColor: [155, 89, 182] },
                         styles: { fontSize: 6 },
-                        columnStyles: { 1: { cellWidth: 55 } },
+                        columnStyles: { 1: { cellWidth: 50 } },
                     });
                     startY = doc.lastAutoTable.finalY + 8;
                 } else {
