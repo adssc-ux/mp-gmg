@@ -25,6 +25,7 @@
             --yellow: #ffc107;
             --blue: #3498db;
             --blue-dark: #1a4f7a;
+            --purple: #9b59b6;
             --sidebar-bg: rgba(12, 12, 20, 0.1);
             --sidebar-active: rgba(30, 30, 50, 0.2);
             --sidebar-hover: rgba(25, 25, 40, 0.15);
@@ -134,7 +135,6 @@
             margin-top: 50px;
         }
 
-        /* ========== SIDEBAR ========== */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--sidebar-bg);
@@ -286,7 +286,6 @@
             display: inline-block;
         }
 
-        /* ========== CONTEÚDO PRINCIPAL ========== */
         .content-area {
             flex: 1;
             display: flex;
@@ -386,7 +385,6 @@
             }
         }
 
-        /* ========== TABS ========== */
         .tab-content {
             display: none;
             flex-direction: column;
@@ -396,7 +394,6 @@
             display: flex;
         }
 
-        /* ========== DISPLAY ========== */
         .display-card {
             background: var(--surface);
             backdrop-filter: blur(calc(var(--backdrop-blur) * 2));
@@ -462,7 +459,6 @@
             margin-left: 2px;
         }
 
-        /* ========== CONTROLES ========== */
         .controls-row {
             display: flex;
             gap: 8px;
@@ -573,7 +569,6 @@
             color: #fff;
         }
 
-        /* ========== MANUTENÇÃO ========== */
         .section-title {
             font-weight: 700;
             font-size: 1rem;
@@ -725,8 +720,38 @@
             background: rgba(52, 152, 219, 0.5);
             box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
         }
+        .btn-pending {
+            background: rgba(155, 89, 182, 0.3);
+            border-color: rgba(155, 89, 182, 0.6);
+            color: #fff;
+        }
+        .btn-pending:hover {
+            background: rgba(155, 89, 182, 0.5);
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+        }
 
-        /* ========== HISTÓRICO ========== */
+        .modal-date-input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: var(--font-body);
+            outline: none;
+            margin-top: 6px;
+        }
+        .modal-date-input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        .modal-date-hint {
+            font-size: 0.7rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
         .history-list {
             list-style: none;
             display: flex;
@@ -789,7 +814,6 @@
             color: var(--red);
         }
 
-        /* ========== MODAL ========== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -833,7 +857,9 @@
             color: #ccc;
             margin-bottom: 4px;
         }
-        .modal input {
+        .modal input,
+        .modal textarea,
+        .modal select {
             width: 100%;
             padding: 8px 12px;
             border-radius: 8px;
@@ -844,7 +870,17 @@
             font-family: var(--font-body);
             outline: none;
         }
-        .modal input:focus {
+        .modal textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .modal select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+        .modal input:focus,
+        .modal textarea:focus,
+        .modal select:focus {
             border-color: var(--blue);
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
@@ -905,8 +941,31 @@
             border-radius: 20px;
             cursor: pointer;
         }
+        .btn-danger {
+            background: rgba(231, 76, 60, 0.5);
+            border: 1px solid var(--red);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-danger:hover {
+            background: rgba(231, 76, 60, 0.8);
+        }
+        .btn-purple {
+            background: rgba(155, 89, 182, 0.5);
+            border: 1px solid var(--purple);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-purple:hover {
+            background: rgba(155, 89, 182, 0.8);
+        }
 
-        /* Toast */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -942,6 +1001,10 @@
             background: rgba(30, 100, 30, 0.7);
             border-left: 4px solid #4caf50;
         }
+        .toast.info {
+            background: rgba(30, 30, 180, 0.7);
+            border-left: 4px solid #448aff;
+        }
         @keyframes toastIn {
             from {
                 opacity: 0;
@@ -961,6 +1024,119 @@
                 opacity: 0;
                 transform: translateX(40px);
             }
+        }
+
+        .pending-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .pending-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--red);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .pending-item .pending-text {
+            flex: 1;
+            font-size: 0.85rem;
+            color: #eee;
+        }
+        .pending-item .pending-date {
+            font-size: 0.7rem;
+            color: #aaa;
+        }
+        .pending-item .pending-category {
+            font-size: 0.65rem;
+            background: rgba(155, 89, 182, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: #d4b0e0;
+        }
+        .pending-item .btn-resolve {
+            background: rgba(46, 204, 113, 0.3);
+            border: 1px solid rgba(46, 204, 113, 0.5);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all var(--transition);
+        }
+        .pending-item .btn-resolve:hover {
+            background: rgba(46, 204, 113, 0.5);
+        }
+        .pending-item .btn-remove-pending {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #ccc;
+            padding: 4px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            transition: all var(--transition);
+        }
+        .pending-item .btn-remove-pending:hover {
+            background: rgba(231, 76, 60, 0.4);
+            color: #fff;
+        }
+        .pending-empty {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 16px;
+            font-style: italic;
+        }
+
+        .pending-summary {
+            background: rgba(155, 89, 182, 0.15);
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .pending-summary .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+        .pending-summary .stat .num {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+        .pending-summary .stat .label {
+            color: #aaa;
+        }
+
+        .btn-pdf-pending-only {
+            background: rgba(155, 89, 182, 0.2);
+            border: 1px solid rgba(155, 89, 182, 0.4);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all var(--transition);
+            font-family: var(--font-body);
+            backdrop-filter: blur(4px);
+        }
+        .btn-pdf-pending-only:hover {
+            background: rgba(155, 89, 182, 0.4);
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
         }
 
         @media (max-width: 750px) {
@@ -1018,6 +1194,11 @@
             .custom-time-group {
                 flex-wrap: wrap;
             }
+            .pending-summary {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
         }
     </style>
 </head>
@@ -1045,7 +1226,7 @@
                 <div class="sidebar-label">Gerador Ativo</div>
                 <select class="generator-select" id="generatorSelect"></select>
                 <button class="btn-manage" id="btnManage">⚙ Gerenciar</button>
-                <button class="btn-pdf" id="btnPDF">📄 Relatório PDF</button>
+                <button class="btn-pdf" id="btnPDF">📄 Relatório Completo</button>
             </div>
             <nav class="sidebar-nav">
                 <button class="tab-btn active" data-tab="horimetro">
@@ -1054,6 +1235,10 @@
                 <button class="tab-btn" data-tab="manutencoes">
                     <span class="tab-icon">🔧</span> Manut.
                     <span class="tab-badge" id="manutBadge">!</span>
+                </button>
+                <button class="tab-btn" data-tab="pendencias">
+                    <span class="tab-icon">⚠️</span> Pendências
+                    <span class="tab-badge" id="pendingBadge" style="background:var(--orange);">!</span>
                 </button>
                 <button class="tab-btn" data-tab="historico">
                     <span class="tab-icon">📋</span> Histórico
@@ -1108,6 +1293,21 @@
             <section class="tab-content" id="tab-manutencoes">
                 <div class="section-title"><span>🔧</span> Próx. Manutenções</div>
                 <div class="maintenance-grid" id="maintenanceGrid"></div>
+            </section>
+
+            <section class="tab-content" id="tab-pendencias">
+                <div class="section-title"><span>⚠️</span> Pendências Registradas</div>
+                <div class="pending-summary" id="pendingSummary">
+                    <div class="stat">
+                        <span class="num" id="pendingCount">0</span>
+                        <span class="label">pendências ativas</span>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button class="btn-pdf-pending-only" id="btnPDFPending">📄 Gerar Relatório de Pendências</button>
+                        <button class="btn-small btn-pending" id="btnAddPendingManual">➕ Nova Pendência</button>
+                    </div>
+                </div>
+                <div id="pendingContent"><p class="pending-empty">Nenhuma pendência registrada.</p></div>
             </section>
 
             <section class="tab-content" id="tab-historico">
@@ -1208,9 +1408,8 @@
             initParticles();
             animateParticles();
 
-            // ========== CONFIGURAÇÃO DE ARMAZENAMENTO ==========
-            const STORAGE_KEY = 'horimetro_multigerador_v8';
-            const OLD_STORAGE_KEY = 'horimetro_multigerador_v7'; // Chave da versão anterior
+            const STORAGE_KEY = 'horimetro_multigerador_v12';
+            const OLD_STORAGE_KEY = 'horimetro_multigerador_v11';
 
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Óleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
@@ -1223,6 +1422,18 @@
                     alerted: false },
                 { id: 'revisao_geral', name: 'Revisão Geral Completa', intervalHours: 300, icon: '🔧', lastDoneAtHours: 0,
                     alerted: false },
+            ];
+
+            const PENDING_CATEGORIES = [
+                'Mecânico',
+                'Elétrico',
+                'Hidráulico',
+                'Estrutural',
+                'Segurança',
+                'Operacional',
+                'Documentação',
+                'Limpeza',
+                'Outro'
             ];
 
             let state = {
@@ -1245,6 +1456,8 @@
             const $customTimeValue = document.getElementById('customTimeValue');
             const $customTimeUnit = document.getElementById('customTimeUnit');
             const $maintenanceGrid = document.getElementById('maintenanceGrid');
+            const $pendingContent = document.getElementById('pendingContent');
+            const $pendingCount = document.getElementById('pendingCount');
             const $historyContent = document.getElementById('historyContent');
             const $btnClearHistory = document.getElementById('btnClearHistory');
             const $toastContainer = document.getElementById('toastContainer');
@@ -1252,10 +1465,13 @@
             const $tabBtns = document.querySelectorAll('.tab-btn');
             const $tabContents = document.querySelectorAll('.tab-content');
             const $manutBadge = document.getElementById('manutBadge');
+            const $pendingBadge = document.getElementById('pendingBadge');
             const $histBadge = document.getElementById('histBadge');
             const $generatorSelect = document.getElementById('generatorSelect');
             const $btnManage = document.getElementById('btnManage');
             const $btnPDF = document.getElementById('btnPDF');
+            const $btnPDFPending = document.getElementById('btnPDFPending');
+            const $btnAddPendingManual = document.getElementById('btnAddPendingManual');
             const $techInfo = document.getElementById('techInfo');
             const $currentGenBadge = document.getElementById('currentGenBadge');
             const $genChassiDisplay = document.getElementById('genChassiDisplay');
@@ -1263,7 +1479,6 @@
             let displayIntervalId = null;
             let maintUpdateIntervalId = null;
 
-            // ========== PERSISTÊNCIA COM MIGRAÇÃO ==========
             function saveState() {
                 try {
                     if (state.activeGeneratorId) {
@@ -1274,24 +1489,18 @@
                         }
                     }
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                    // Remove chave antiga após migração bem sucedida
                     localStorage.removeItem(OLD_STORAGE_KEY);
                 } catch (e) {}
             }
 
             function loadState() {
                 try {
-                    // Tentar carregar da nova chave primeiro
                     let raw = localStorage.getItem(STORAGE_KEY);
-                    // Se não existir, tentar carregar da chave antiga (v7)
                     if (!raw) {
                         raw = localStorage.getItem(OLD_STORAGE_KEY);
-                        if (raw) {
-                            console.log('Migrando dados da versão anterior...');
-                        }
+                        if (raw) console.log('Migrando dados da versão anterior...');
                     }
                     if (!raw) {
-                        // Nenhum dado encontrado, estado inicial
                         state.technicianName = '';
                         state.technicianCPF = '';
                         state.generators = [{
@@ -1303,6 +1512,7 @@
                             startTimestamp: null,
                             maintenanceItems: JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                             maintenanceHistory: [],
+                            pendencies: [],
                         }];
                         state.activeGeneratorId = state.generators[0].id;
                         saveState();
@@ -1314,7 +1524,6 @@
                     state.generators = parsed.generators || [];
                     state.activeGeneratorId = parsed.activeGeneratorId || (state.generators[0] ? state.generators[0].id : null);
 
-                    // Migração de cada gerador para garantir campos novos (chassi)
                     state.generators = state.generators.map(gen => {
                         return {
                             id: gen.id || 'gen_' + Date.now(),
@@ -1329,13 +1538,14 @@
                                     return saved ? { ...def, ...saved, alerted: false } : { ...def };
                                 }) : JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                             maintenanceHistory: Array.isArray(gen.maintenanceHistory) ? gen.maintenanceHistory : [],
+                            pendencies: Array.isArray(gen.pendencies) ? gen.pendencies : [],
                         };
                     });
 
                     if (!state.activeGeneratorId && state.generators.length > 0) {
                         state.activeGeneratorId = state.generators[0].id;
                     }
-                    saveState(); // Salva na nova chave e remove a antiga
+                    saveState();
                 } catch (e) {
                     console.error('Erro ao carregar estado, recriando...', e);
                     state.technicianName = '';
@@ -1349,6 +1559,7 @@
                         startTimestamp: null,
                         maintenanceItems: JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                         maintenanceHistory: [],
+                        pendencies: [],
                     }];
                     state.activeGeneratorId = state.generators[0].id;
                     saveState();
@@ -1490,6 +1701,7 @@
                         <div class="maint-progress-bar"><div class="maint-progress-fill" style="width:${st.pct}%;"></div></div>
                         <div class="maint-card-actions">
                             <button class="btn-small btn-do-maintenance" data-id="${item.id}">✅ Registrar</button>
+                            <button class="btn-small btn-pending" data-id="${item.id}">⚠️ Pendência</button>
                             <button class="btn-small btn-edit" data-id="${item.id}">⚙ Editar</button>
                         </div>
                     `;
@@ -1497,168 +1709,369 @@
                 });
                 $manutBadge.classList.toggle('show', hasOverdue);
                 $maintenanceGrid.querySelectorAll('.btn-do-maintenance').forEach(b => b.addEventListener('click',
-                    () => recordMaintenance(b.dataset.id)));
+                    () => openMaintenanceDateModal(b.dataset.id)));
+                $maintenanceGrid.querySelectorAll('.btn-pending').forEach(b => b.addEventListener('click',
+                    () => openPendingModal(b.dataset.id)));
                 $maintenanceGrid.querySelectorAll('.btn-edit').forEach(b => b.addEventListener('click', () =>
                     openEditIntervalModal(b.dataset.id)));
             }
 
-            function updateHistoryUI() {
+            function updatePendingUI() {
                 const gen = getActiveGenerator();
-                if (!gen || gen.maintenanceHistory.length === 0) {
-                    $historyContent.innerHTML = '<p class="history-empty">Nenhuma manutenção registrada ainda.</p>';
-                    $btnClearHistory.style.display = 'none';
-                    $histBadge.classList.remove('show');
-                } else {
-                    const ul = document.createElement('ul');
-                    ul.className = 'history-list';
-                    [...gen.maintenanceHistory].reverse().forEach(entry => {
-                        const d = new Date(entry.dateISO);
-                        const li = document.createElement('li');
-                        li.className = 'history-item';
-                        li.innerHTML = `
-                            <span class="h-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
-                            <span class="h-item">${entry.itemName}</span>
-                            <span class="h-hours">${entry.hoursAtMaintenance.toFixed(1)} h</span>
-                            <span class="h-tech">👤 ${entry.technicianName || 'Técnico'}</span>
-                        `;
-                        ul.appendChild(li);
+                if (!gen || gen.pendencies.length === 0) {
+                    $pendingContent.innerHTML = '<p class="pending-empty">Nenhuma pendência registrada.</p>';
+                    $pendingBadge.classList.remove('show');
+                    $pendingCount.textContent = '0';
+                    return;
+                }
+
+                const container = document.createElement('div');
+                container.className = 'pending-list';
+
+                const sorted = [...gen.pendencies].reverse();
+
+                sorted.forEach((pend, index) => {
+                    const realIndex = gen.pendencies.length - 1 - index;
+                    const d = new Date(pend.dateISO);
+                    const div = document.createElement('div');
+                    div.className = 'pending-item';
+                    div.innerHTML = `
+                        <span class="pending-text">${pend.description}</span>
+                        <span class="pending-category">${pend.category || 'Geral'}</span>
+                        <span class="pending-date">📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
+                        <span style="font-size:0.7rem;color:#aaa;">👤 ${pend.technicianName || 'Técnico'}</span>
+                        <div style="display:flex;gap:4px;">
+                            <button class="btn-resolve" data-index="${realIndex}">✅ Resolver</button>
+                            <button class="btn-remove-pending" data-index="${realIndex}">✕</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+                $pendingContent.innerHTML = '';
+                $pendingContent.appendChild(container);
+
+                container.querySelectorAll('.btn-resolve').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.index);
+                        resolvePending(idx);
                     });
-                    $historyContent.innerHTML = '';
-                    $historyContent.appendChild(ul);
-                    $btnClearHistory.style.display = 'inline-block';
-                    $histBadge.classList.add('show');
-                    $histBadge.textContent = gen.maintenanceHistory.length;
+                });
+
+                container.querySelectorAll('.btn-remove-pending').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.index);
+                        if (confirm('Remover esta pendência?')) {
+                            removePending(idx);
+                        }
+                    });
+                });
+
+                $pendingBadge.classList.add('show');
+                $pendingBadge.textContent = gen.pendencies.length;
+                $pendingCount.textContent = gen.pendencies.length;
+            }
+
+            function resolvePending(index) {
+                const gen = getActiveGenerator();
+                if (!gen || !gen.pendencies[index]) return;
+
+                const pend = gen.pendencies[index];
+                if (confirm(`Confirmar resolução da pendência:\n"${pend.description}"`)) {
+                    gen.maintenanceHistory.push({
+                        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+                        dateISO: new Date().toISOString(),
+                        itemName: `✅ Pendência Resolvida: ${pend.description}`,
+                        hoursAtMaintenance: getTotalHours(),
+                        technicianName: state.technicianName || 'Técnico',
+                        technicianCPF: state.technicianCPF || '',
+                        generatorName: gen.name,
+                        generatorChassi: gen.chassi || '',
+                        isPendingResolution: true,
+                    });
+
+                    gen.pendencies.splice(index, 1);
+                    saveState();
+                    updateAllUI();
+                    showToast('✅ Pendência resolvida e registrada no histórico!', 'success');
+                    playBeep();
                 }
             }
 
-            function updateAllUI() {
-                updateDisplay();
-                updateStatusUI();
-                updateMaintenanceCards();
-                updateHistoryUI();
-                updateGeneratorSelect();
-            }
-
-            function switchTab(id) {
-                $tabBtns.forEach(b => b.classList.remove('active'));
-                $tabContents.forEach(c => c.classList.remove('active'));
-                document.querySelector(`.tab-btn[data-tab="${id}"]`).classList.add('active');
-                document.getElementById(`tab-${id}`).classList.add('active');
-            }
-            $tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
-
-            function startDisplayInterval() {
-                if (displayIntervalId) return;
-                displayIntervalId = setInterval(updateDisplay, 1000);
-                if (!maintUpdateIntervalId) maintUpdateIntervalId = setInterval(() => { updateMaintenanceCards();
-                    checkAlerts(); }, 8000);
-            }
-
-            function stopDisplayInterval() {
-                if (displayIntervalId) { clearInterval(displayIntervalId);
-                    displayIntervalId = null; }
-            }
-
-            function startTimer() {
+            function removePending(index) {
                 const gen = getActiveGenerator();
-                if (!gen || gen.isRunning) return;
-                gen.isRunning = true;
-                gen.startTimestamp = Date.now();
-                gen.maintenanceItems.forEach(i => i.alerted = false);
+                if (!gen || !gen.pendencies[index]) return;
+                gen.pendencies.splice(index, 1);
                 saveState();
                 updateAllUI();
-                startDisplayInterval();
-                showToast(`Horímetro iniciado: ${gen.name}`, 'success');
+                showToast('Pendência removida.', 'info');
             }
 
-            function stopTimer() {
+            function openManualPendingModal() {
                 const gen = getActiveGenerator();
-                if (!gen || !gen.isRunning) return;
-                stopTimerInternal(gen);
-                saveState();
-                updateAllUI();
-                stopDisplayInterval();
-                showToast(`Horímetro parado: ${gen.name}`, 'success');
-            }
-
-            function stopTimerInternal(gen) {
-                if (!gen.isRunning) return;
-                gen.totalMilliseconds += Math.max(0, Date.now() - (gen.startTimestamp || Date.now()));
-                gen.isRunning = false;
-                gen.startTimestamp = null;
-            }
-
-            function resetTimer() {
-                const gen = getActiveGenerator();
-                if (!gen) return;
-                gen.totalMilliseconds = 0;
-                gen.isRunning = false;
-                gen.startTimestamp = null;
-                gen.maintenanceItems.forEach(i => { i.lastDoneAtHours = 0;
-                    i.alerted = false; });
-                gen.maintenanceHistory = [];
-                saveState();
-                updateAllUI();
-                stopDisplayInterval();
-                showToast(`Horímetro zerado: ${gen.name}`, 'success');
-            }
-
-            function simulateTime() {
-                const gen = getActiveGenerator();
-                if (!gen) return;
-                const rawValue = $customTimeValue.value.trim();
-                const unit = $customTimeUnit.value;
-                let value = parseFloat(rawValue);
-
-                if (isNaN(value) || value <= 0) {
-                    showToast('Informe um valor válido.', 'warning');
+                if (!gen) {
+                    showToast('Selecione um gerador primeiro.', 'warning');
                     return;
                 }
 
-                let hoursToAdd;
-                let displayUnit;
+                const now = new Date();
+                const todayStr = now.toISOString().split('T')[0];
 
-                if (unit === 'minutos') {
-                    hoursToAdd = value / 60;
-                    displayUnit = value === 1 ? 'minuto' : 'minutos';
-                } else {
-                    hoursToAdd = value;
-                    displayUnit = value === 1 ? 'hora' : 'horas';
-                }
+                let categoryOptions = PENDING_CATEGORIES.map(cat =>
+                    `<option value="${cat}">${cat}</option>`
+                ).join('');
 
-                if (hoursToAdd > 99999) {
-                    showToast('Valor máximo permitido: 99999 horas.', 'warning');
-                    return;
-                }
+                $modalOverlay.innerHTML = `
+                    <div class="modal">
+                        <h2>⚠️ Nova Pendência Manual</h2>
+                        <p style="color:#ddd; margin-bottom:12px;">
+                            <strong>${gen.name}</strong> - ${gen.chassi ? `Chassi: ${gen.chassi}` : ''}
+                        </p>
+                        <div class="form-group">
+                            <label>Descrição do Problema</label>
+                            <textarea id="inputPendingDesc" placeholder="Descreva detalhadamente o problema encontrado..." style="min-height:100px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="inputPendingCategory">
+                                <option value="">Selecione uma categoria...</option>
+                                ${categoryOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data do Registro</label>
+                            <input type="date" class="modal-date-input" id="inputPendingDate" value="${todayStr}">
+                        </div>
+                        <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
+                                <input type="checkbox" id="inputPendingUrgent" style="width:auto;"> 🔴 Urgente
+                            </label>
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
+                                <input type="checkbox" id="inputPendingCritical" style="width:auto;"> ⚠️ Crítico
+                            </label>
+                        </div>
+                        <div class="modal-date-hint">📌 A pendência será registrada e exibida na lista de pendências.</div>
+                        <div class="modal-buttons">
+                            <button class="btn-cancel" id="modalCancel">Cancelar</button>
+                            <button class="btn-purple" id="modalConfirmPending">⚠️ Registrar Pendência</button>
+                        </div>
+                    </div>`;
+                $modalOverlay.style.display = 'flex';
+                document.getElementById('modalCancel').onclick = closeModal;
+                document.getElementById('modalConfirmPending').onclick = () => {
+                    const description = document.getElementById('inputPendingDesc').value.trim();
+                    const category = document.getElementById('inputPendingCategory').value;
+                    const dateValue = document.getElementById('inputPendingDate').value;
+                    const isUrgent = document.getElementById('inputPendingUrgent').checked;
+                    const isCritical = document.getElementById('inputPendingCritical').checked;
 
-                const displayValue = unit === 'minutos' ? `${value} ${displayUnit}` :
-                    `${value.toFixed(2)} ${displayUnit}`;
+                    if (!description) {
+                        showToast('Descreva a pendência.', 'warning');
+                        return;
+                    }
+                    if (!dateValue) {
+                        showToast('Selecione uma data.', 'warning');
+                        return;
+                    }
 
-                if (!confirm(`Adicionar ${displayValue} ao horímetro de "${gen.name}"?`)) return;
+                    let finalDesc = description;
+                    if (isUrgent && isCritical) {
+                        finalDesc = '🔴⚠️ [URGENTE + CRÍTICO] ' + description;
+                    } else if (isUrgent) {
+                        finalDesc = '🔴 [URGENTE] ' + description;
+                    } else if (isCritical) {
+                        finalDesc = '⚠️ [CRÍTICO] ' + description;
+                    }
 
-                const ms = hoursToAdd * 3600000;
-                if (gen.isRunning) {
-                    gen.totalMilliseconds += Math.max(0, Date.now() - gen.startTimestamp) + ms;
-                    gen.startTimestamp = Date.now();
-                } else {
-                    gen.totalMilliseconds += ms;
-                }
-                gen.maintenanceItems.forEach(i => i.alerted = false);
-                saveState();
-                updateAllUI();
-                checkAlerts();
-                showToast(`${displayValue} adicionado(s): ${gen.name}`, 'success');
+                    const customDateTime = new Date(`${dateValue}T12:00:00`);
+                    registerPending(null, finalDesc, customDateTime.toISOString(), category || 'Geral');
+                    closeModal();
+                };
+                $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
             }
 
-            function recordMaintenance(itemId) {
+            function openPendingModal(itemId) {
+                const gen = getActiveGenerator();
+                if (!gen) return;
+                const item = gen.maintenanceItems.find(i => i.id === itemId);
+                if (!item) return;
+
+                const now = new Date();
+                const todayStr = now.toISOString().split('T')[0];
+
+                let categoryOptions = PENDING_CATEGORIES.map(cat =>
+                    `<option value="${cat}">${cat}</option>`
+                ).join('');
+
+                $modalOverlay.innerHTML = `
+                    <div class="modal">
+                        <h2>⚠️ Registrar Pendência</h2>
+                        <p style="color:#ddd; margin-bottom:12px;">
+                            <strong>${item.name}</strong> - ${gen.name}
+                        </p>
+                        <div class="form-group">
+                            <label>Descrição da Pendência</label>
+                            <textarea id="inputPendingDesc" placeholder="Ex: Filtro de ar obstruído, necessidade de limpeza urgente..." style="min-height:80px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="inputPendingCategory">
+                                <option value="">Selecione uma categoria...</option>
+                                ${categoryOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data do Registro</label>
+                            <input type="date" class="modal-date-input" id="inputPendingDate" value="${todayStr}">
+                        </div>
+                        <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
+                                <input type="checkbox" id="inputPendingUrgent" style="width:auto;"> 🔴 Urgente
+                            </label>
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;">
+                                <input type="checkbox" id="inputPendingCritical" style="width:auto;"> ⚠️ Crítico
+                            </label>
+                        </div>
+                        <div class="modal-date-hint">📌 A pendência será registrada e exibida na lista de pendências.</div>
+                        <div class="modal-buttons">
+                            <button class="btn-cancel" id="modalCancel">Cancelar</button>
+                            <button class="btn-purple" id="modalConfirmPending">⚠️ Registrar Pendência</button>
+                        </div>
+                    </div>`;
+                $modalOverlay.style.display = 'flex';
+                document.getElementById('modalCancel').onclick = closeModal;
+                document.getElementById('modalConfirmPending').onclick = () => {
+                    const description = document.getElementById('inputPendingDesc').value.trim();
+                    const category = document.getElementById('inputPendingCategory').value;
+                    const dateValue = document.getElementById('inputPendingDate').value;
+                    const isUrgent = document.getElementById('inputPendingUrgent').checked;
+                    const isCritical = document.getElementById('inputPendingCritical').checked;
+
+                    if (!description) {
+                        showToast('Descreva a pendência.', 'warning');
+                        return;
+                    }
+                    if (!dateValue) {
+                        showToast('Selecione uma data.', 'warning');
+                        return;
+                    }
+
+                    let finalDesc = description;
+                    if (isUrgent && isCritical) {
+                        finalDesc = '🔴⚠️ [URGENTE + CRÍTICO] ' + description;
+                    } else if (isUrgent) {
+                        finalDesc = '🔴 [URGENTE] ' + description;
+                    } else if (isCritical) {
+                        finalDesc = '⚠️ [CRÍTICO] ' + description;
+                    }
+
+                    const customDateTime = new Date(`${dateValue}T12:00:00`);
+                    registerPending(itemId, finalDesc, customDateTime.toISOString(), category || 'Geral');
+                    closeModal();
+                };
+                $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
+            }
+
+            function registerPending(itemId, description, dateISO = null, category = 'Geral') {
+                const gen = getActiveGenerator();
+                if (!gen) return;
+
+                const item = itemId ? gen.maintenanceItems.find(i => i.id === itemId) : null;
+
+                const pend = {
+                    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+                    dateISO: dateISO || new Date().toISOString(),
+                    description: description,
+                    itemName: item ? item.name : 'Pendência Manual',
+                    itemId: itemId || 'manual',
+                    category: category || 'Geral',
+                    technicianName: state.technicianName || 'Técnico',
+                    technicianCPF: state.technicianCPF || '',
+                    generatorName: gen.name,
+                    generatorChassi: gen.chassi || '',
+                    isUrgent: description.includes('[URGENTE]'),
+                    isCritical: description.includes('[CRÍTICO]'),
+                };
+
+                gen.pendencies.push(pend);
+                saveState();
+                updateAllUI();
+                const d = new Date(dateISO || new Date().toISOString());
+                showToast(`⚠️ Pendência registrada em ${d.toLocaleDateString('pt-BR')}: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
+                    'warning');
+                playBeep();
+
+                gen.maintenanceHistory.push({
+                    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+                    dateISO: dateISO || new Date().toISOString(),
+                    itemName: `⚠️ Pendência: ${description.substring(0, 60)}${description.length > 60 ? '...' : ''}`,
+                    hoursAtMaintenance: getTotalHours(),
+                    technicianName: state.technicianName || 'Técnico',
+                    technicianCPF: state.technicianCPF || '',
+                    generatorName: gen.name,
+                    generatorChassi: gen.chassi || '',
+                    isPending: true,
+                    pendingId: pend.id,
+                });
+                saveState();
+                updateAllUI();
+            }
+
+            function openMaintenanceDateModal(itemId) {
+                const gen = getActiveGenerator();
+                if (!gen) return;
+                const item = gen.maintenanceItems.find(i => i.id === itemId);
+                if (!item) return;
+
+                const now = new Date();
+                const todayStr = now.toISOString().split('T')[0];
+                const nowTimeStr = now.toTimeString().split(' ')[0].substring(0, 5);
+
+                $modalOverlay.innerHTML = `
+                    <div class="modal">
+                        <h2>📅 Registrar Manutenção</h2>
+                        <p style="color:#ddd; margin-bottom:12px;"><strong>${item.name}</strong> - ${gen.name}</p>
+                        <div class="form-group">
+                            <label>Data da Execução</label>
+                            <input type="date" class="modal-date-input" id="inputMaintDate" value="${todayStr}">
+                        </div>
+                        <div class="form-group">
+                            <label>Horário (opcional)</label>
+                            <input type="time" class="modal-date-input" id="inputMaintTime" value="${nowTimeStr}">
+                        </div>
+                        <div class="modal-date-hint">🕒 A data/hora selecionada será registrada no histórico.</div>
+                        <div class="modal-buttons">
+                            <button class="btn-cancel" id="modalCancel">Cancelar</button>
+                            <button class="btn-confirm" id="modalConfirmMaint">✅ Confirmar Registro</button>
+                        </div>
+                    </div>`;
+                $modalOverlay.style.display = 'flex';
+                document.getElementById('modalCancel').onclick = closeModal;
+                document.getElementById('modalConfirmMaint').onclick = () => {
+                    const dateValue = document.getElementById('inputMaintDate').value;
+                    const timeValue = document.getElementById('inputMaintTime').value || '00:00';
+                    if (!dateValue) {
+                        showToast('Selecione uma data.', 'warning');
+                        return;
+                    }
+                    const customDateTime = new Date(`${dateValue}T${timeValue}:00`);
+                    recordMaintenance(itemId, customDateTime.toISOString());
+                    closeModal();
+                };
+                $modalOverlay.onclick = e => { if (e.target === $modalOverlay) closeModal(); };
+            }
+
+            function recordMaintenance(itemId, customDateISO = null) {
                 const gen = getActiveGenerator();
                 if (!gen) return;
                 const item = gen.maintenanceItems.find(i => i.id === itemId);
                 if (!item) return;
                 const totalHours = getTotalHours();
+                const dateISO = customDateISO || new Date().toISOString();
+
                 gen.maintenanceHistory.push({
                     id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
-                    dateISO: new Date().toISOString(),
+                    dateISO: dateISO,
                     itemName: item.name,
                     hoursAtMaintenance: totalHours,
                     technicianName: state.technicianName || 'Técnico',
@@ -1668,9 +2081,19 @@
                 });
                 item.lastDoneAtHours = totalHours;
                 item.alerted = false;
+
+                const relatedPendencies = gen.pendencies.filter(p => p.itemId === itemId);
+                if (relatedPendencies.length > 0) {
+                    gen.pendencies = gen.pendencies.filter(p => p.itemId !== itemId);
+                    showToast(`✅ ${relatedPendencies.length} pendência(s) relacionada(s) foram resolvidas automaticamente.`,
+                        'success');
+                }
+
                 saveState();
                 updateAllUI();
-                showToast(`✅ Manutenção registrada: ${item.name}`, 'success');
+                const d = new Date(dateISO);
+                showToast(`✅ Manutenção registrada em ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}: ${item.name}`,
+                    'success');
                 playBeep();
             }
 
@@ -1707,7 +2130,6 @@
             function closeModal() { $modalOverlay.style.display = 'none';
                 $modalOverlay.innerHTML = ''; }
 
-            // ========== MODAL DE GERENCIAMENTO COM CHASSI ==========
             function openManageModal() {
                 let html = `
                     <div class="modal">
@@ -1759,6 +2181,7 @@
                         startTimestamp: null,
                         maintenanceItems: JSON.parse(JSON.stringify(DEFAULT_MAINTENANCE_ITEMS)),
                         maintenanceHistory: [],
+                        pendencies: [],
                     };
                     state.generators.push(newGen);
                     if (!state.activeGeneratorId) state.activeGeneratorId = newGen.id;
@@ -1823,8 +2246,108 @@
                 return div.innerHTML;
             }
 
-            // ========== GERAÇÃO DE PDF COM CHASSI ==========
-            function generatePDF() {
+            // ========== RELATÓRIO DE PENDÊNCIAS (APENAS NA ABA DE PENDÊNCIAS) ==========
+            function generatePendingReport() {
+                const gen = getActiveGenerator();
+                if (!gen) {
+                    showToast('Selecione um gerador para gerar o relatório.', 'warning');
+                    return;
+                }
+
+                if (gen.pendencies.length === 0) {
+                    showToast('Não há pendências para este gerador.', 'info');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const now = new Date();
+
+                doc.setFontSize(20);
+                doc.setTextColor(200, 80, 0);
+                doc.text('⚠️ RELATÓRIO DE PENDÊNCIAS', 14, 22);
+                doc.setTextColor(0, 0, 0);
+
+                doc.setFontSize(11);
+                doc.text(`Gerador: ${gen.name}`, 14, 32);
+                if (gen.chassi) {
+                    doc.text(`Chassi: ${gen.chassi}`, 14, 39);
+                }
+                doc.text(`Técnico Responsável: ${state.technicianName || 'Não definido'}`, 14, 46);
+                if (state.technicianCPF) {
+                    doc.text(`CPF do Técnico: ${state.technicianCPF}`, 14, 53);
+                }
+                doc.text(`Data/Hora: ${now.toLocaleString('pt-BR')}`, 14, 60);
+                doc.text(`Total de Pendências: ${gen.pendencies.length}`, 14, 67);
+
+                // Contagem por categoria
+                const categoryCount = {};
+                gen.pendencies.forEach(p => {
+                    const cat = p.category || 'Geral';
+                    categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+                });
+
+                let yPos = 75;
+                doc.setFontSize(11);
+                doc.text('📊 Resumo por Categoria:', 14, yPos);
+                yPos += 5;
+
+                const catRows = Object.entries(categoryCount).map(([cat, count]) => [cat, count.toString()]);
+                doc.autoTable({
+                    startY: yPos,
+                    head: [['Categoria', 'Quantidade']],
+                    body: catRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [155, 89, 182] },
+                    styles: { fontSize: 8 },
+                });
+
+                yPos = doc.lastAutoTable.finalY + 8;
+
+                // Lista detalhada de pendências
+                doc.setFontSize(14);
+                doc.text('📋 Lista Detalhada de Pendências', 14, yPos);
+                yPos += 5;
+
+                const pendingRows = gen.pendencies.map(p => {
+                    const d = new Date(p.dateISO);
+                    const urgency = p.isCritical ? '🚨 Crítico' : p.isUrgent ? '🔴 Urgente' : 'Normal';
+                    return [
+                        d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit',
+                            minute: '2-digit' }),
+                        p.description.length > 50 ? p.description.substring(0, 47) + '...' : p.description,
+                        p.category || 'Geral',
+                        urgency,
+                        p.technicianName || 'Técnico'
+                    ];
+                });
+
+                doc.autoTable({
+                    startY: yPos + 2,
+                    head: [
+                        ['Data', 'Descrição', 'Categoria', 'Urgência', 'Registrado Por']
+                    ],
+                    body: pendingRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [200, 80, 0] },
+                    styles: { fontSize: 7 },
+                    columnStyles: {
+                        1: { cellWidth: 70 },
+                    },
+                });
+
+                const finalY = doc.lastAutoTable.finalY + 20;
+                doc.setFontSize(10);
+                doc.text('_________________________________________', 14, finalY);
+                doc.text('Assinatura do Técnico Responsável', 14, finalY + 6);
+                doc.text(`Gerado em: ${now.toLocaleString('pt-BR')}`, 14, finalY + 14);
+
+                doc.save(`relatorio_pendencias_${gen.name.replace(/\s+/g, '_')}.pdf`);
+                showToast('📄 Relatório de Pendências gerado com sucesso!', 'success');
+            }
+
+            // ========== RELATÓRIO COMPLETO ==========
+            function generateFullPDF() {
                 const gen = getActiveGenerator();
                 if (!gen) {
                     showToast('Selecione um gerador para gerar o relatório.', 'warning');
@@ -1837,7 +2360,7 @@
                 const now = new Date();
 
                 doc.setFontSize(18);
-                doc.text('RELATÓRIO DE MANUTENÇÃO', 14, 22);
+                doc.text('RELATÓRIO DE MANUTENÇÃO E PENDÊNCIAS', 14, 22);
                 doc.setFontSize(11);
                 doc.text(`Gerador: ${gen.name}`, 14, 32);
                 if (gen.chassi) {
@@ -1851,11 +2374,57 @@
                 doc.text(`Horas Totais: ${formatted.hoursStr}:${formatted.minutesStr}:${formatted.secondsStr}`, 14, 67);
                 doc.text(`Status: ${gen.isRunning ? 'Em funcionamento' : 'Parado'}`, 14, 74);
 
+                let startY = 82;
+
+                // Seção de Pendências
+                if (gen.pendencies.length > 0) {
+                    doc.setFontSize(14);
+                    doc.setTextColor(200, 80, 0);
+                    doc.text(`⚠️ PENDÊNCIAS REGISTRADAS (${gen.pendencies.length})`, 14, startY);
+                    doc.setTextColor(0, 0, 0);
+
+                    const pendingRows = gen.pendencies.map(p => {
+                        const d = new Date(p.dateISO);
+                        const urgency = p.isCritical ? '🚨 Crítico' : p.isUrgent ? '🔴 Urgente' : 'Normal';
+                        return [
+                            d.toLocaleDateString('pt-BR'),
+                            p.description.length > 50 ? p.description.substring(0, 47) + '...' : p.description,
+                            p.category || 'Geral',
+                            urgency,
+                            p.technicianName || 'Técnico'
+                        ];
+                    });
+
+                    doc.autoTable({
+                        startY: startY + 5,
+                        head: [
+                            ['Data', 'Descrição', 'Categoria', 'Urgência', 'Registrado Por']
+                        ],
+                        body: pendingRows,
+                        theme: 'grid',
+                        headStyles: { fillColor: [200, 80, 0] },
+                        styles: { fontSize: 7 },
+                        columnStyles: {
+                            1: { cellWidth: 60 },
+                        },
+                    });
+                    startY = doc.lastAutoTable.finalY + 8;
+                } else {
+                    doc.setFontSize(11);
+                    doc.text('✅ Nenhuma pendência registrada.', 14, startY);
+                    startY += 8;
+                }
+
+                // Seção de Manutenções Previstas
+                doc.setFontSize(14);
+                doc.text('🔧 MANUTENÇÕES PREVISTAS', 14, startY);
+                startY += 5;
+
                 const maintenanceRows = gen.maintenanceItems.map(item => {
                     const st = getMaintenanceStatus(item, totalHours);
                     let status = 'OK';
-                    if (st.status === 'warning') status = 'Próximo';
-                    if (st.status === 'overdue') status = 'Vencido';
+                    if (st.status === 'warning') status = '⚠ Próximo';
+                    if (st.status === 'overdue') status = '🚨 Vencido';
                     return [
                         item.name,
                         `${item.intervalHours}h`,
@@ -1864,40 +2433,208 @@
                     ];
                 });
 
-                let startY = 82;
                 doc.autoTable({
-                    startY: startY,
-                    head: [['Manutenção', 'Intervalo', 'Desde Última', 'Status']],
+                    startY: startY + 2,
+                    head: [
+                        ['Manutenção', 'Intervalo', 'Desde Última', 'Status']
+                    ],
                     body: maintenanceRows,
                     theme: 'grid',
                     headStyles: { fillColor: [41, 128, 185] },
+                    styles: { fontSize: 8 },
                 });
 
+                let historyStartY = doc.lastAutoTable.finalY + 10;
+
+                // Seção de Histórico
                 if (gen.maintenanceHistory.length > 0) {
-                    const historyY = doc.lastAutoTable.finalY + 10;
                     doc.setFontSize(14);
-                    doc.text('Histórico de Manutenções Realizadas', 14, historyY);
+                    doc.text('📋 HISTÓRICO DE MANUTENÇÕES', 14, historyStartY);
                     const historyRows = gen.maintenanceHistory.map(entry => {
                         const d = new Date(entry.dateISO);
+                        const isPending = entry.isPending || entry.isPendingResolution || false;
+                        let itemName = entry.itemName;
+                        if (isPending) {
+                            itemName = '⚠️ ' + itemName;
+                        }
                         return [
                             d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit',
                                 minute: '2-digit' }),
-                            entry.itemName,
+                            itemName.length > 50 ? itemName.substring(0, 47) + '...' : itemName,
                             `${entry.hoursAtMaintenance.toFixed(1)}h`,
                             entry.technicianName || 'Técnico'
                         ];
                     });
                     doc.autoTable({
-                        startY: historyY + 5,
-                        head: [['Data', 'Manutenção', 'Horas no momento', 'Técnico']],
+                        startY: historyStartY + 5,
+                        head: [
+                            ['Data', 'Registro', 'Horas no momento', 'Técnico']
+                        ],
                         body: historyRows,
                         theme: 'grid',
                         headStyles: { fillColor: [39, 174, 96] },
+                        styles: { fontSize: 7 },
                     });
                 }
 
-                doc.save(`relatorio_manutencao_${gen.name.replace(/\s+/g, '_')}.pdf`);
-                showToast('Relatório PDF gerado com sucesso!', 'success');
+                doc.save(`relatorio_completo_${gen.name.replace(/\s+/g, '_')}.pdf`);
+                showToast('📄 Relatório completo gerado com sucesso!', 'success');
+            }
+
+            function updateHistoryUI() {
+                const gen = getActiveGenerator();
+                if (!gen || gen.maintenanceHistory.length === 0) {
+                    $historyContent.innerHTML = '<p class="history-empty">Nenhuma manutenção registrada ainda.</p>';
+                    $btnClearHistory.style.display = 'none';
+                    $histBadge.classList.remove('show');
+                } else {
+                    const ul = document.createElement('ul');
+                    ul.className = 'history-list';
+                    [...gen.maintenanceHistory].reverse().forEach(entry => {
+                        const d = new Date(entry.dateISO);
+                        const li = document.createElement('li');
+                        li.className = 'history-item';
+                        const isPending = entry.isPending || entry.isPendingResolution || false;
+                        li.innerHTML = `
+                            <span class="h-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</span>
+                            <span class="h-item" style="${isPending ? 'color:#ff9800;' : ''}">${isPending ? '⚠️ ' : ''}${entry.itemName}</span>
+                            <span class="h-hours">${entry.hoursAtMaintenance.toFixed(1)} h</span>
+                            <span class="h-tech">👤 ${entry.technicianName || 'Técnico'}</span>
+                        `;
+                        ul.appendChild(li);
+                    });
+                    $historyContent.innerHTML = '';
+                    $historyContent.appendChild(ul);
+                    $btnClearHistory.style.display = 'inline-block';
+                    $histBadge.classList.add('show');
+                    $histBadge.textContent = gen.maintenanceHistory.length;
+                }
+            }
+
+            function updateAllUI() {
+                updateDisplay();
+                updateStatusUI();
+                updateMaintenanceCards();
+                updatePendingUI();
+                updateHistoryUI();
+                updateGeneratorSelect();
+            }
+
+            function switchTab(id) {
+                $tabBtns.forEach(b => b.classList.remove('active'));
+                $tabContents.forEach(c => c.classList.remove('active'));
+                document.querySelector(`.tab-btn[data-tab="${id}"]`).classList.add('active');
+                document.getElementById(`tab-${id}`).classList.add('active');
+            }
+            $tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+            function startDisplayInterval() {
+                if (displayIntervalId) return;
+                displayIntervalId = setInterval(updateDisplay, 1000);
+                if (!maintUpdateIntervalId) maintUpdateIntervalId = setInterval(() => { updateMaintenanceCards();
+                    checkAlerts(); }, 8000);
+            }
+
+            function stopDisplayInterval() {
+                if (displayIntervalId) { clearInterval(displayIntervalId);
+                    displayIntervalId = null; }
+            }
+
+            function startTimer() {
+                const gen = getActiveGenerator();
+                if (!gen || gen.isRunning) return;
+                gen.isRunning = true;
+                gen.startTimestamp = Date.now();
+                gen.maintenanceItems.forEach(i => i.alerted = false);
+                saveState();
+                updateAllUI();
+                startDisplayInterval();
+                showToast(`Horímetro iniciado: ${gen.name}`, 'success');
+            }
+
+            function stopTimer() {
+                const gen = getActiveGenerator();
+                if (!gen || !gen.isRunning) return;
+                stopTimerInternal(gen);
+                saveState();
+                updateAllUI();
+                stopDisplayInterval();
+                showToast(`Horímetro parado: ${gen.name}`, 'success');
+            }
+
+            function stopTimerInternal(gen) {
+                if (!gen.isRunning) return;
+                gen.totalMilliseconds += Math.max(0, Date.now() - (gen.startTimestamp || Date.now()));
+                gen.isRunning = false;
+                gen.startTimestamp = null;
+            }
+
+            function resetTimer() {
+                const gen = getActiveGenerator();
+                if (!gen) return;
+                if (gen.pendencies.length > 0) {
+                    if (!confirm(
+                            `Este gerador possui ${gen.pendencies.length} pendência(s) não resolvidas. Deseja continuar com o zeramento?`
+                            )) return;
+                }
+                gen.totalMilliseconds = 0;
+                gen.isRunning = false;
+                gen.startTimestamp = null;
+                gen.maintenanceItems.forEach(i => { i.lastDoneAtHours = 0;
+                    i.alerted = false; });
+                gen.maintenanceHistory = [];
+                gen.pendencies = [];
+                saveState();
+                updateAllUI();
+                stopDisplayInterval();
+                showToast(`Horímetro zerado: ${gen.name}`, 'success');
+            }
+
+            function simulateTime() {
+                const gen = getActiveGenerator();
+                if (!gen) return;
+                const rawValue = $customTimeValue.value.trim();
+                const unit = $customTimeUnit.value;
+                let value = parseFloat(rawValue);
+
+                if (isNaN(value) || value <= 0) {
+                    showToast('Informe um valor válido.', 'warning');
+                    return;
+                }
+
+                let hoursToAdd;
+                let displayUnit;
+
+                if (unit === 'minutos') {
+                    hoursToAdd = value / 60;
+                    displayUnit = value === 1 ? 'minuto' : 'minutos';
+                } else {
+                    hoursToAdd = value;
+                    displayUnit = value === 1 ? 'hora' : 'horas';
+                }
+
+                if (hoursToAdd > 99999) {
+                    showToast('Valor máximo permitido: 99999 horas.', 'warning');
+                    return;
+                }
+
+                const displayValue = unit === 'minutos' ? `${value} ${displayUnit}` :
+                    `${value.toFixed(2)} ${displayUnit}`;
+
+                if (!confirm(`Adicionar ${displayValue} ao horímetro de "${gen.name}"?`)) return;
+
+                const ms = hoursToAdd * 3600000;
+                if (gen.isRunning) {
+                    gen.totalMilliseconds += Math.max(0, Date.now() - gen.startTimestamp) + ms;
+                    gen.startTimestamp = Date.now();
+                } else {
+                    gen.totalMilliseconds += ms;
+                }
+                gen.maintenanceItems.forEach(i => i.alerted = false);
+                saveState();
+                updateAllUI();
+                checkAlerts();
+                showToast(`${displayValue} adicionado(s): ${gen.name}`, 'success');
             }
 
             function checkAlerts() {
@@ -1943,6 +2680,7 @@
                 } catch (e) {}
             }
 
+            // ========== EVENT LISTENERS ==========
             $customTimeUnit.addEventListener('change', function() {
                 if (this.value === 'minutos') {
                     $customTimeValue.setAttribute('step', '1');
@@ -1980,7 +2718,10 @@
                 switchToGenerator($generatorSelect.value);
             });
             $btnManage.addEventListener('click', openManageModal);
-            $btnPDF.addEventListener('click', generatePDF);
+            $btnPDF.addEventListener('click', generateFullPDF);
+            $btnPDFPending.addEventListener('click', generatePendingReport);
+            $btnAddPendingManual.addEventListener('click', openManualPendingModal);
+
             document.addEventListener('keydown', e => {
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName ===
                     'SELECT') return;
@@ -2002,6 +2743,8 @@
                 if (!maintUpdateIntervalId) maintUpdateIntervalId = setInterval(() => { updateMaintenanceCards();
                     checkAlerts(); }, 10000);
                 switchTab('horimetro');
+
+                updatePendingUI();
             }
 
             window.addEventListener('beforeunload', () => {
