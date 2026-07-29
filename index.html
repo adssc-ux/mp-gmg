@@ -1552,11 +1552,9 @@
             initParticles();
             animateParticles();
 
-            // ====== CONFIGURAÇÕES ======
-            const STORAGE_KEY = 'horimetro_multigerador_v14';
-            const OLD_STORAGE_KEYS = ['horimetro_multigerador_v13', 'horimetro_multigerador_v12', 'horimetro_multigerador_v11',
-                'horimetro_multigerador_v10'
-            ];
+            // ====== CONFIGURAÇÕES - MANTENDO A MESMA CHAVE PARA NÃO PERDER DADOS ======
+            const STORAGE_KEY = 'horimetro_multigerador_v13';
+            const OLD_STORAGE_KEYS = ['horimetro_multigerador_v12', 'horimetro_multigerador_v11', 'horimetro_multigerador_v10'];
 
             const DEFAULT_MAINTENANCE_ITEMS = [
                 { id: 'oleo_motor', name: 'Troca de Oleo do Motor', intervalHours: 50, icon: '🛢️', lastDoneAtHours: 0,
@@ -1637,7 +1635,7 @@
             let displayIntervalId = null;
             let maintUpdateIntervalId = null;
 
-            // ====== FUNÇÕES DE ESTADO ======
+            // ====== FUNÇÃO DE SALVAR - MANTÉM A MESMA CHAVE ======
             function saveState() {
                 try {
                     if (state.activeGeneratorId) {
@@ -1648,6 +1646,12 @@
                         }
                     }
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                    // Remove chaves antigas para não acumular
+                    OLD_STORAGE_KEYS.forEach(key => {
+                        if (localStorage.getItem(key)) {
+                            localStorage.removeItem(key);
+                        }
+                    });
                 } catch (e) {
                     console.error('Erro ao salvar estado:', e);
                 }
@@ -1676,19 +1680,22 @@
                 }
             }
 
+            // ====== FUNÇÃO DE MIGRAÇÃO MELHORADA ======
             function migrateData() {
+                // Primeiro tenta carregar da chave atual
                 let raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     try {
                         const parsed = JSON.parse(raw);
                         if (parsed && parsed.generators && parsed.generators.length > 0) {
-                            return raw;
+                            return raw; // Dados válidos encontrados
                         }
                     } catch (e) {
                         console.warn('Dados da chave atual corrompidos, tentando migrar...');
                     }
                 }
 
+                // Tenta migrar das chaves antigas
                 for (const oldKey of OLD_STORAGE_KEYS) {
                     const oldData = localStorage.getItem(oldKey);
                     if (oldData) {
@@ -1706,6 +1713,7 @@
                     }
                 }
 
+                // Busca por qualquer chave que comece com 'horimetro_multigerador_v'
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key && key.startsWith('horimetro_multigerador_v') && key !== STORAGE_KEY) {
@@ -1727,8 +1735,10 @@
                 return null;
             }
 
+            // ====== FUNÇÃO DE CARREGAR - PRIORIZA DADOS EXISTENTES ======
             function loadState() {
                 try {
+                    // Tenta migrar dados de versões anteriores
                     const migratedData = migrateData();
                     let raw = migratedData || localStorage.getItem(STORAGE_KEY);
 
@@ -1759,9 +1769,11 @@
                         throw new Error('Dados inválidos: nenhum gerador encontrado');
                     }
 
+                    // Mantém os dados existentes, apenas adiciona os novos campos se necessário
                     state.technicianName = parsed.technicianName || '';
                     state.technicianCPF = parsed.technicianCPF || '';
                     state.generators = parsed.generators.map(gen => {
+                        // Preserva todos os dados existentes
                         return {
                             id: gen.id || 'gen_' + Date.now(),
                             name: gen.name || 'Gerador',
@@ -1786,6 +1798,7 @@
                         state.activeGeneratorId = state.generators[0] ? state.generators[0].id : null;
                     }
 
+                    // Salva o estado migrado
                     saveState();
 
                     const genCount = state.generators.length;
@@ -1793,6 +1806,11 @@
                     const resolvedCount = state.generators.reduce((sum, g) => sum + (g.resolvedPendencies ? g.resolvedPendencies
                         .length : 0), 0);
                     console.log(`Dados carregados: ${genCount} gerador(es), ${pendCount} pendência(s), ${resolvedCount} resolvida(s)`);
+                    
+                    // Mostra toast de confirmação
+                    if (genCount > 0) {
+                        showToast(`Dados carregados: ${genCount} gerador(es), ${pendCount + resolvedCount} pendência(s)`, 'success');
+                    }
 
                 } catch (e) {
                     console.error('Erro ao carregar estado, recriando...', e);
@@ -1839,7 +1857,7 @@
                 }
             }
 
-            // ====== FUNÇÕES DE ATUALIZAÇÃO ======
+            // ====== FUNÇÕES DE ATUALIZAÇÃO (mantidas do código anterior) ======
             function updateGeneratorSelect() {
                 $generatorSelect.innerHTML = '';
                 state.generators.forEach(gen => {
@@ -2057,7 +2075,6 @@
 
                     const newDateTime = new Date(`${dateValue}T${timeValue}:00`);
 
-                    // Atualiza pendência
                     pend.description = description;
                     pend.category = category || 'Geral';
                     pend.dateISO = newDateTime.toISOString();
@@ -3344,6 +3361,11 @@
                 const totalResolved = state.generators.reduce((sum, g) => sum + (g.resolvedPendencies ? g.resolvedPendencies
                     .length : 0), 0);
                 console.log(`Sistema inicializado: ${totalGens} gerador(es), ${totalPends} pendencia(s), ${totalResolved} resolvida(s)`);
+                
+                // Mostra toast com resumo
+                if (totalGens > 0) {
+                    showToast(`Bem vindo! ${totalGens} gerador(es), ${totalPends + totalResolved} pendencia(s) carregadas`, 'success');
+                }
             }
 
             window.addEventListener('beforeunload', () => {
